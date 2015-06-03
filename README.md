@@ -42,4 +42,4 @@ The view will be updated every thirty seconds to look for new events.
 
  
 ## Wireframe
-![](wireframe.png)
+![](docs/wireframe.png)
