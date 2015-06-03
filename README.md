@@ -33,11 +33,12 @@ The app will use android support library v7 for most of its functionality. It is
 
 ## MVC
 ### Controller
-
+An onclicklistener will be used to determine what element was clicked (i.e. a specific event or the create new event button)
 ### Model
+The main model is the screen you instantly see: your current location and the dots of activities.
 
 ### View
-
+The view will be updated every thirty seconds to look for new events. 
 
  
 ## Wireframe
