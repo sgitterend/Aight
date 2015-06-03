@@ -28,8 +28,8 @@ The app will use android support library v7 for most of its functionality. It is
 |:------:|:------:|---------|
 |1 | Prototype UI | Set up views, basic interface elements/controllers, log in, add and see friends. |
 |2 | Beta version | Be able to create an activity with your current location |
-|3 | Minimum Viable Product | Push notifications, profile view, delayed features |
-|4 | Final release | Clean up code and refactor where necessary |
+|3 | Minimum Viable Product | Create possibility for notifications, add settings menu |
+|4 | Final release | Finalize features, perfectionize code |
 
 ## MVC
 ### Controller
