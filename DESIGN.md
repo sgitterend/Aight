@@ -4,24 +4,25 @@ June 5th 2015
 ## Classes & Methods
 To get an idea of the functions of this app, here is an overview of the classes & methods that need to be implemented in order for this app to work properly.
 
-**ParseLoginUI** The ParseLoginUI will be used to show a login
 
-**MapsView**
+###Activities
+**ParseLoginUI** The ParseLoginUI will be used to show a login screen to the user which allows for a login.
+Classes:
+- Login
 
-**CreateEvent**
+
+**MapsView** The Mapsview will be a fullscreen map presented to the user with dots of events nearby.
+
+**CreateEvent** The createEvent 
 
 ## APIs & Frameworks
 
 - Google Maps API
 - Parse Login Library API
 
-This app will use the Google Maps API for the MapsView activity.
+This app will use the Google Maps API for the MapsView activity. This will be used to show the map to the user. It will also be used to
 
-To enable login, parse will be used.
-
-a list of APIs and frameworks that you will be using to provide functionality in your app
-a list of data sources, and database tables and fields (and their types) that you’ve decided to implement
-
+To enable login, parse will be used. It provides a set of tools which makes it easy to implement log in to the app.
 
 ## Sketches
 
@@ -42,4 +43,16 @@ In this activity there will be a text box, in which the user can input up to 140
 The LogIn activity will only show when no login is detected. So generally only the first time a user uses the app on a device. Parse will handle log in.
 
 ## Database
-Each event a user creates will be stored in a database untill the event expires (maximum 
+Each event a user creates will be stored in a database untill the event expires (maximum of 90 minutes).
+Parse will be used as the database, since it offers easy to acces tools for storing and retrieving data.
+
+Two types of data will be stored: User and activity.
+
+**UserData** will be stored holding the username (string), encrypted password (string), and user object id (string).
+**ActivityData** will be stored holding the activity's description (string), expiry date (string), whether it is public or private (boolean), and the activity id (string).
+
+
+## Minimum Viable Product (MVP)
+
+The MVP version of this app allows for a user to log in, view events on the map, and create an event using gps location.
+Additional features are the ability to make events either public or private. And to add a settings menu which allows for the option to only show either private, public or both types of events.
