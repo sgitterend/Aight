@@ -1,5 +1,4 @@
-# Aight
-### Design document
+# Aight - Design document
 June 5th 2015
 
 ## Classes & Methods
@@ -27,9 +26,9 @@ a list of data sources, and database tables and fields (and their types) that yo
 ## Sketches
 
 ### 2 Main activities: MapsView and CreateEvent
-The third activity is LogIn
+The third activity is LogIn, which is generally only shown at first use. (Left in image below)
 ![](docs/wireframe.png)
-
+ *Left to right: LogIn, MapsView, CreateEvent and Mapsview with new event opened*
 ### MapsView
 Shows current position on the map, zoomed in to a level that you see no more than a 1 km radius around you.
 Shows all events that are currently active within the view of the map as clickable dots.
@@ -42,4 +41,5 @@ In this activity there will be a text box, in which the user can input up to 140
 ### LogIn
 The LogIn activity will only show when no login is detected. So generally only the first time a user uses the app on a device. Parse will handle log in.
 
-
+## Database
+Each event a user creates will be stored in a database untill the event expires (maximum 
