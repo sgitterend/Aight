@@ -7,13 +7,26 @@ To get an idea of the functions of this app, here is an overview of the classes 
 
 ###Activities
 **ParseLoginUI** The ParseLoginUI will be used to show a login screen to the user which allows for a login.
-Classes:
-- Login
 
+Classes:
+- UsernameField
+- PasswordField
+- SendlogintoParse
 
 **MapsView** The Mapsview will be a fullscreen map presented to the user with dots of events nearby.
 
-**CreateEvent** The createEvent 
+Classes:
+- LoadEvent
+- RefreshView
+- OnClickListener
+- EventShow
+
+**CreateEvent** CreateEvent will handle the creation of an event and send the variables to parse.
+
+Classes:
+- EventDescription
+- EventtimeSlider
+- SendeventtoParse
 
 ## APIs & Frameworks
 
