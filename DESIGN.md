@@ -69,3 +69,9 @@ Two types of data will be stored: User and activity.
 
 The MVP version of this app allows for a user to log in, view events on the map, and create an event using gps location.
 Additional features are the ability to make events either public or private. And to add a settings menu which allows for the option to only show either private, public or both types of events.
+
+
+## Demo
+
+See it in action:
+https://aaight.proto.io/player/index.cfm?id=e1605cee-5585-4b70-91dd-6c3d3830129f
