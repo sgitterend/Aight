@@ -1,7 +1,26 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
-    android:name="com.google.android.gms.maps.SupportMapFragment" />
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+        android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
+        android:name="com.google.android.gms.maps.SupportMapFragment" />
 
+    <ImageButton
+        android:src="@drawable/ic_action"
+        android:layout_width="64sp"
+        android:layout_height="64sp"
+        android:text="@string/plus_button"
+        android:layout_gravity="bottom|end"
+        android:layout_marginRight="16sp"
+        android:layout_marginEnd="16sp"
+        android:layout_marginBottom="16sp"
+        android:tint="@android:color/white"
+        android:id="@+id/fab"
+        android:elevation="10sp"
+        android:background="@drawable/circle" />
 
+</FrameLayout>
