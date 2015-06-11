@@ -13,14 +13,14 @@
         android:src="@drawable/ic_action"
         android:layout_width="64sp"
         android:layout_height="64sp"
-        android:text="@string/plus_button"
         android:layout_gravity="bottom|end"
         android:layout_marginRight="16sp"
         android:layout_marginEnd="16sp"
         android:layout_marginBottom="16sp"
-        android:tint="@android:color/white"
+        android:tint="@android:color/black"
         android:id="@+id/fab"
         android:elevation="10sp"
-        android:background="@drawable/circle" />
+        android:background="@drawable/circle"
+        android:onClick="goCreateEvent"/>
 
 </FrameLayout>

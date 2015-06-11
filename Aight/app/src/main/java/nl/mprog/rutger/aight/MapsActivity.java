@@ -1,6 +1,8 @@
 package nl.mprog.rutger.aight;
 
 import android.content.Context;
+import android.content.Intent;
+import android.view.View;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -79,6 +81,7 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
+
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
      * just add a marker near Africa.
@@ -143,5 +146,14 @@ public class MapsActivity extends FragmentActivity {
         });
 
 
+    }
+    // Allow user to create an event
+    public void goCreateEvent(View view) {
+
+        // create intent for create Event activity
+        Intent go = new Intent(this, CreateEvent.class);
+
+        // Go to CreateEvent activity
+        startActivity(go);
     }
 }

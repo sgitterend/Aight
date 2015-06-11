@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ColorPrimary">#DD5722</color>
-    <color name="ColorPrimaryDark">#D64A19</color>
+    <color name="White">#fff</color>
+    <color name="washed_orange">#ffd6a4</color>
+    <color name="ColorPrimary">#4caf50</color>
+    <color name="blue">#2196f3</color>
+    <color name="ColorBG">#f28500</color>
+    <color name="ColorPrimaryDark">#2a7616</color>
 </resources>
