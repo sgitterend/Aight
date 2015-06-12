@@ -40,7 +40,7 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
 
         ParseObject testObject = new ParseObject("TestObject");
-        testObject.put("foo", "bar");
+        testObject.put("foo", "bur");
         testObject.saveInBackground();
     }
 

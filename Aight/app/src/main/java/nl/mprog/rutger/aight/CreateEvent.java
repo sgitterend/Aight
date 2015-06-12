@@ -4,9 +4,13 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
 
 
 public class CreateEvent extends Activity {
@@ -45,26 +49,39 @@ public class CreateEvent extends Activity {
             }
         });
 
-        EditText eventDescription = (EditText) findViewById(R.id.event_description);
-        final TextView descriptionCount = (TextView) findViewById(R.id.charCount);
+        final TextView charCount = (TextView) findViewById(R.id.charCount);
+        final EditText eventDescription = (EditText) findViewById(R.id.event_description);
+        final int maxChars = 140;
 
-        descriptionCount.setText(140 - eventDescription.length());
+        charCount.setText(Integer.toString(maxChars));
 
         eventDescription.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //This sets a textview to the current length
-                descriptionCount.setText(String.valueOf(s.length()));
+                charCount.setText(Integer.toString(maxChars - count));
             }
 
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                // TODO Auto-generated method stub
+            }
+
+            @Override
             public void afterTextChanged(Editable s) {
+
+                // TODO Auto-generated method stub
             }
         });
+    }
 
-
+    public void sendEventToParse(View view) {
+        ParseGeoPoint point = new ParseGeoPoint(0, 0);
+        ParseObject placeObject = new ParseObject("Location");
+        placeObject.put("location", point);
+        placeObject.put("User", "piet");
+        placeObject.saveInBackground();
+        finish();
     }
 }
 

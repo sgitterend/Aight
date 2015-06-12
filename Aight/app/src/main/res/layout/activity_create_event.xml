@@ -29,9 +29,8 @@
         android:singleLine="false"
         android:hint="@string/description_hint"
         android:textColorHint="@color/washed_orange"
-        android:focusable="true"
-        android:minLines="3"
-        android:maxLines="5"
+        android:minLines="2"
+        android:maxLines="3"
         android:maxLength="140"
         android:scrollbars="vertical"/>
 
@@ -69,5 +68,5 @@
         android:textSize="32sp"
         android:textColor="@color/White"
         android:padding="16sp"
-        android:onClick="sendeventtoParse"/>
+        android:onClick="sendEventToParse"/>
 </LinearLayout>
