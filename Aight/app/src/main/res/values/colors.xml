@@ -5,5 +5,6 @@
     <color name="ColorPrimary">#4caf50</color>
     <color name="blue">#2196f3</color>
     <color name="ColorBG">#f28500</color>
+    <color name="ColorSB">#d97700</color>
     <color name="ColorPrimaryDark">#2a7616</color>
 </resources>

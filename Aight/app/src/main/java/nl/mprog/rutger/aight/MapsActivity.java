@@ -1,7 +1,10 @@
 package nl.mprog.rutger.aight;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.view.View;
 import android.location.Criteria;
 import android.location.Location;
@@ -9,9 +12,13 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -32,6 +39,10 @@ public class MapsActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        // set translucent statusbar
+        Window window = this.getWindow();
+        setColor(window);
 
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
@@ -93,7 +104,7 @@ public class MapsActivity extends FragmentActivity {
         // the following lines are based on this tutorial:
         // http://bit.ly/1KoNLoA
 
-        // Enable location in map
+        // Enable location button in map
         mMap.setMyLocationEnabled(true);
 
         // Get LocationManager object from System Service LOCATION_SERVICE
@@ -110,10 +121,10 @@ public class MapsActivity extends FragmentActivity {
 
 
         // Get latitude of the current location
-        double latitude = myLocation.getLatitude();
+        final double latitude = myLocation.getLatitude();
 
         // Get longitude of the current location
-        double longitude = myLocation.getLongitude();
+        final double longitude = myLocation.getLongitude();
 
         // Create a LatLng object for the current location
         LatLng UserLocation = new LatLng(latitude, longitude);
@@ -125,35 +136,58 @@ public class MapsActivity extends FragmentActivity {
         mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
 
 
-        mMap.addMarker(new MarkerOptions().position(new LatLng(52.354892, 4.955294)).title("Science").snippet("Are you sciencing as hard as you can?"));
-        mMap.addMarker(new MarkerOptions().position(new LatLng(52.358892, 4.950)).title("park"));
-
-        ParseGeoPoint point = new ParseGeoPoint(latitude, longitude);
-        ParseObject placeObject = new ParseObject("Location");
-        placeObject.put("location", point);
-        placeObject.put("User", "henk");
-        placeObject.saveInBackground();
-
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> list, ParseException e) {
                 //Log.d("locations", list.toString());
                 for (int i = 0; i < list.size(); i++) {
-                    Log.d("Locations", list.get(i).getObjectId());
-                    Log.d("geo", list.get(i).getParseGeoPoint("location").toString());
+
+                    // krijg dit nog niet aan de praat
+//                    double lati = Double.parseDouble(list.get(i).getParseGeoPoint("lat").toString());
+//                    double longi = Double.parseDouble(list.get(i).getParseGeoPoint("long").toString());
+//                    String user = list.get(i).getParseGeoPoint("User").toString();
+//                    String description = list.get(i).getParseGeoPoint("Description").toString();
+
+                    mMap.addMarker(new MarkerOptions().position(new LatLng(i, i)).title((String) "ja").snippet((String) "hoor"));
                 }
             }
         });
 
 
     }
+
     // Allow user to create an event
     public void goCreateEvent(View view) {
 
         // create intent for create Event activity
         Intent go = new Intent(this, CreateEvent.class);
 
+        // Get location
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = lm.getBestProvider(criteria, true);
+        Location myLocation = lm.getLastKnownLocation(provider);
+        final double latitude = myLocation.getLatitude();
+        final double longitude = myLocation.getLongitude();
+
+        // give location along
+        Bundle b = new Bundle();
+        b.putDouble("latitude", latitude);
+        b.putDouble("longitude", longitude);
+        go.putExtras(b);
+
         // Go to CreateEvent activity
         startActivity(go);
     }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    final void setColor(Window window) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+            window.setStatusBarColor(Color.argb((int) (0.2 * 255.0f), 0, 70, 0));
+        }
+    }
+
 }
