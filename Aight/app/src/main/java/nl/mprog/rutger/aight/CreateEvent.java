@@ -25,9 +25,7 @@ public class CreateEvent extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
-        // set statusbar color
-        Window window = this.getWindow();
-        setColor(window);
+
 
 
         // create slider and textview for intended activity length
@@ -121,13 +119,5 @@ public class CreateEvent extends Activity {
         finish();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    final void setColor(Window window) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(getResources().getColor(R.color.ColorSB));
-        }
-    }
 }
 

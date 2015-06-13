@@ -14,8 +14,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -53,6 +56,8 @@ public class MapsActivity extends FragmentActivity {
         ParseObject testObject = new ParseObject("TestObject");
         testObject.put("foo", "bur");
         testObject.saveInBackground();
+
+
     }
 
 
@@ -101,13 +106,23 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
 
-        // the following lines are based on this tutorial:
-        // http://bit.ly/1KoNLoA
-
-        // Enable location button in map
         mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
-        // Get LocationManager object from System Service LOCATION_SERVICE
+        // make a fab button to locate current position
+        ImageButton fabLocate;
+        fabLocate = (ImageButton) findViewById(R.id.fablocate);
+
+        fabLocate.setOnClickListener(new View.OnClickListener() {
+             public void onClick(View v) {
+                 getMyLocation();
+             }
+         });
+
+        /** the following lines are based on this tutorial:
+         *  http://bit.ly/1KoNLoA
+         *
+         *  Get LocationManager object from System Service LOCATION_SERVICE */
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         // Create a criteria object to retrieve provider
@@ -133,7 +148,7 @@ public class MapsActivity extends FragmentActivity {
         // Show the current location in Google Map
         mMap.moveCamera(CameraUpdateFactory.newLatLng(UserLocation));
 
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
 
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
@@ -180,6 +195,20 @@ public class MapsActivity extends FragmentActivity {
         startActivity(go);
     }
 
+    private void getMyLocation() {
+        // Get location
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String provider = lm.getBestProvider(criteria, true);
+        Location myLocation = lm.getLastKnownLocation(provider);
+        final double latitude = myLocation.getLatitude();
+        final double longitude = myLocation.getLongitude();
+
+        LatLng latLng = new LatLng(latitude, longitude);
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+        mMap.animateCamera(cameraUpdate);
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     final void setColor(Window window) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -189,5 +218,4 @@ public class MapsActivity extends FragmentActivity {
             window.setStatusBarColor(Color.argb((int) (0.2 * 255.0f), 0, 70, 0));
         }
     }
-
 }
