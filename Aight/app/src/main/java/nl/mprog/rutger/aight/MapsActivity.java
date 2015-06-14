@@ -108,6 +108,8 @@ public class MapsActivity extends FragmentActivity {
 
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        mMap.getUiSettings().setCompassEnabled(false);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
 
         // make a fab button to locate current position
         ImageButton fabLocate;
@@ -215,7 +217,7 @@ public class MapsActivity extends FragmentActivity {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-            window.setStatusBarColor(Color.argb((int) (0.2 * 255.0f), 0, 70, 0));
+            window.setStatusBarColor(Color.argb((int) (0.2 * 255.0f), 0, 0, 0));
         }
     }
 }

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="White">#fff</color>
-    <color name="washed_orange">#ffd6a4</color>
-    <color name="blue">#2196f3</color>
-    <color name="ColorPrimary">#f28500</color>
-    <color name="ColorPrimaryDark">#d97700</color>
+    <color name="Black">#000</color>
+    <color name="washed_orange">#ffe0b2</color>
+    <color name="blue">#03a9f4</color>
+    <color name="MapsBlue">#4285f4</color>
+    <color name="ColorPrimary">#ff9800</color>
+    <color name="ColorPrimaryDark">#f57c00</color>
 </resources>

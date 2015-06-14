@@ -7,7 +7,7 @@
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
         android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
-        android:name="com.google.android.gms.maps.SupportMapFragment" />
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
     <ImageButton
         android:id="@+id/fablocate"
@@ -19,7 +19,7 @@
         android:layout_marginBottom="100sp"
         android:layout_gravity="bottom|end"
         android:scaleType="fitXY"
-        android:tint="@android:color/black"
+        android:tint="@color/MapsBlue"
         android:elevation="10sp"
         android:background="@drawable/circle"
         android:onClick="doLocate"/>
@@ -34,10 +34,8 @@
         android:layout_marginBottom="20sp"
         android:layout_gravity="bottom|end"
         android:scaleType="fitXY"
-        android:tint="@color/blue"
+        android:tint="@color/White"
         android:elevation="10sp"
-        android:background="@drawable/circle"
+        android:background="@drawable/circleblue"
         android:onClick="goCreateEvent"/>
-
-
 </FrameLayout>
