@@ -11,18 +11,15 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
@@ -32,7 +29,10 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.Date;
 import java.util.List;
+
+import javax.xml.datatype.Duration;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -52,17 +52,8 @@ public class MapsActivity extends FragmentActivity {
 
         Parse.initialize(this, "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8", "zXSgVFnOxCpRktMpvdTjGQ5YKObO69qqj9bFdNNm");
         setUpMapIfNeeded();
-
-        ParseObject testObject = new ParseObject("TestObject");
-        testObject.put("foo", "bur");
-        testObject.saveInBackground();
-
-
     }
-
-
-
-
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -136,7 +127,6 @@ public class MapsActivity extends FragmentActivity {
         // Get Current Location
         Location myLocation = lm.getLastKnownLocation(provider);
 
-
         // Get latitude of the current location
         final double latitude = myLocation.getLatitude();
 
@@ -145,27 +135,42 @@ public class MapsActivity extends FragmentActivity {
 
         // Create a LatLng object for the current location
         LatLng UserLocation = new LatLng(latitude, longitude);
-        String UserLocationString = String.valueOf(UserLocation.toString());
 
         // Show the current location in Google Map
         mMap.moveCamera(CameraUpdateFactory.newLatLng(UserLocation));
-
         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
 
-
+        // get list of events from parse
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+
+        // query.whereLessThan("createdAt", )
+
+        final Date currentTime = new Date();
+        final long currentTimeSecs = currentTime.getTime();
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> list, ParseException e) {
-                //Log.d("locations", list.toString());
                 for (int i = 0; i < list.size(); i++) {
+                    // get event object
+                    ParseObject object = list.get(i);
 
-                    // krijg dit nog niet aan de praat
-//                    double lati = Double.parseDouble(list.get(i).getParseGeoPoint("lat").toString());
-//                    double longi = Double.parseDouble(list.get(i).getParseGeoPoint("long").toString());
-//                    String user = list.get(i).getParseGeoPoint("User").toString();
-//                    String description = list.get(i).getParseGeoPoint("Description").toString();
+                    // get time of the event
+                    final Date eventTime = object.getCreatedAt();
+                    long eventTimeSecs = eventTime.getTime();
 
-                    mMap.addMarker(new MarkerOptions().position(new LatLng(i, i)).title((String) "ja").snippet((String) "hoor"));
+                    // get other data of event
+                    ParseGeoPoint point = object.getParseGeoPoint("location");
+                    String username = object.getString("username");
+                    String description = object.getString("description");
+                    Integer duration = object.getInt("duration");
+                    Long eventAgeInSecs = ((currentTimeSecs - eventTimeSecs) / 1000);
+                    int eventAgeInMins = (int) (eventAgeInSecs / 60);
+
+                    if (eventAgeInSecs <= 4200 && eventAgeInMins < duration) {
+                        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
+                                point.getLongitude())).title((String) username)
+                                .snippet((String) (description + " - " + (duration - eventAgeInMins) + "m left"))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
+                    }
                 }
             }
         });
@@ -195,6 +200,7 @@ public class MapsActivity extends FragmentActivity {
 
         // Go to CreateEvent activity
         startActivity(go);
+        mMap = null;
     }
 
     private void getMyLocation() {

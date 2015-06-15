@@ -1,15 +1,10 @@
 package nl.mprog.rutger.aight;
 
-import android.annotation.TargetApi;
-import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -61,7 +56,7 @@ public class CreateEvent extends Activity {
         // Make sure user input is limited to 140 chars
         final TextView charCount = (TextView) findViewById(R.id.charCount);
         final EditText eventDescription = (EditText) findViewById(R.id.event_description);
-        final int maxChars = 140;
+        final int maxChars = 40;
 
         charCount.setText(Integer.toString(maxChars));
 
@@ -109,12 +104,10 @@ public class CreateEvent extends Activity {
         }
 
         // send to parse
-        placeObject.put("User", "Piet Verhaal");
-        placeObject.put("Duration", Duration);
-        placeObject.put("Description", message);
+        placeObject.put("username", "Rutger");
+        placeObject.put("duration", Duration);
+        placeObject.put("description", message);
         placeObject.put("location", point);
-        placeObject.put("long", longitude);
-        placeObject.put("lat", latitude);
         placeObject.saveInBackground();
         finish();
     }

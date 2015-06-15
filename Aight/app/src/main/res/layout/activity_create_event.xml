@@ -26,12 +26,11 @@
         android:id="@+id/event_description"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:singleLine="false"
+        android:singleLine="true"
         android:hint="@string/description_hint"
         android:textColorHint="@color/washed_orange"
-        android:minLines="2"
-        android:maxLines="3"
-        android:maxLength="140"
+        android:maxLength="40"
+        android:maxLines="2"
         android:scrollbars="vertical"/>
 
 
