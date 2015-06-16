@@ -9,8 +9,10 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.SaveCallback;
 
 
 public class CreateEvent extends Activity {
@@ -108,8 +110,17 @@ public class CreateEvent extends Activity {
         placeObject.put("duration", Duration);
         placeObject.put("description", message);
         placeObject.put("location", point);
-        placeObject.saveInBackground();
-        finish();
+
+        // only go back to MapsActivity if saving is complete
+        placeObject.saveInBackground(new SaveCallback() {
+            public void done(ParseException e) {
+                if (e == null) {
+                    finish();
+                } else {
+                    done(e);
+                }
+            }
+        });
     }
 
 }

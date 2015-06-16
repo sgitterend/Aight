@@ -9,4 +9,9 @@
     <string name="duration">Set the duration</string>
     <string name="action_settings">Settings</string>
     <string name="aight">AIGHT</string>
+    <string name="title_activity_welcome">Welcome</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="log_in">Log In</string>
+
+
 </resources>

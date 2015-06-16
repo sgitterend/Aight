@@ -21,17 +21,14 @@
         android:textSize="16sp" android:textColor="@color/washed_orange"/>
 
     <EditText
-        android:inputType="textMultiLine"
+        android:inputType="text"
         android:textColor="@color/White"
         android:id="@+id/event_description"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"
         android:hint="@string/description_hint"
         android:textColorHint="@color/washed_orange"
-        android:maxLength="40"
-        android:maxLines="2"
-        android:scrollbars="vertical"/>
+        android:maxLength="40"/>
 
 
     <TextView android:text="@string/duration" android:layout_width="wrap_content"

@@ -46,14 +46,9 @@ public class MapsActivity extends FragmentActivity {
         // set translucent statusbar
         Window window = this.getWindow();
         setColor(window);
-
-        // Enable Local Datastore.
-        Parse.enableLocalDatastore(this);
-
-        Parse.initialize(this, "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8", "zXSgVFnOxCpRktMpvdTjGQ5YKObO69qqj9bFdNNm");
         setUpMapIfNeeded();
     }
-    
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -89,6 +84,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
+
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
      * just add a marker near Africa.
@@ -116,6 +112,7 @@ public class MapsActivity extends FragmentActivity {
          *  http://bit.ly/1KoNLoA
          *
          *  Get LocationManager object from System Service LOCATION_SERVICE */
+
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         // Create a criteria object to retrieve provider
@@ -139,6 +136,9 @@ public class MapsActivity extends FragmentActivity {
         // Show the current location in Google Map
         mMap.moveCamera(CameraUpdateFactory.newLatLng(UserLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+
+        // initialize parse database connection
+        Parse.initialize(this, "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8", "zXSgVFnOxCpRktMpvdTjGQ5YKObO69qqj9bFdNNm");
 
         // get list of events from parse
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
@@ -168,7 +168,7 @@ public class MapsActivity extends FragmentActivity {
                     if (eventAgeInSecs <= 4200 && eventAgeInMins < duration) {
                         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
                                 point.getLongitude())).title((String) username)
-                                .snippet((String) (description + " - " + (duration - eventAgeInMins) + "m left"))
+                                .snippet((String) (description + " - " + (duration - eventAgeInMins) + " min left"))
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
                     }
                 }
@@ -199,8 +199,9 @@ public class MapsActivity extends FragmentActivity {
         go.putExtras(b);
 
         // Go to CreateEvent activity
-        startActivity(go);
         mMap = null;
+        startActivity(go);
+        view.invalidate();
     }
 
     private void getMyLocation() {

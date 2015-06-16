@@ -2,9 +2,10 @@
 <resources>
     <color name="White">#fff</color>
     <color name="Black">#000</color>
-    <color name="washed_orange">#ffe0b2</color>
     <color name="blue">#03a9f4</color>
     <color name="MapsBlue">#4285f4</color>
+    <color name="washed_orange">#ffe0b2</color>
     <color name="ColorPrimary">#ff9800</color>
     <color name="ColorPrimaryDark">#f57c00</color>
+    <color name="Green">#00c853</color>
 </resources>
