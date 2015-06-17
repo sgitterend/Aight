@@ -18,7 +18,8 @@
         android:textColor="@color/White"
         android:inputType="textEmailAddress"
         android:maxLines="1"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:backgroundTint="@color/blue"/>
 
     <EditText
         android:layout_marginTop="48sp"
@@ -30,7 +31,8 @@
         android:textColor="@color/White"
         android:inputType="textPassword"
         android:maxLines="1"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:backgroundTint="@color/blue"/>
 
     <EditText
         android:layout_marginTop="48sp"
@@ -45,7 +47,9 @@
         android:singleLine="true"
         android:imeActionId="@+id/edittext_action_signup"
         android:imeActionLabel="@string/sign_up"
-        android:imeOptions="actionUnspecified" />
+        android:imeOptions="actionUnspecified"
+        android:backgroundTint="@color/blue"
+        android:backgroundTintMode="src_atop" />
 
     <Button
         android:id="@+id/signup_button"

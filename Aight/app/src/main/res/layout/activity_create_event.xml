@@ -28,7 +28,8 @@
         android:layout_height="wrap_content"
         android:hint="@string/description_hint"
         android:textColorHint="@color/washed_orange"
-        android:maxLength="40"/>
+        android:maxLength="40"
+        android:backgroundTint="@color/washed_orange" />
 
 
     <TextView android:text="@string/duration" android:layout_width="wrap_content"
@@ -48,7 +49,11 @@
         android:layout_marginTop="26sp"
         android:progressTint="@color/washed_orange"
         android:progress="6"
-        android:max="18"/>
+        android:max="18"
+        android:backgroundTint="@color/Green"
+        android:backgroundTintMode="src_over"
+        android:progressTintMode="src_over"
+        android:progressBackgroundTint="@color/ColorPrimaryDark" />
 
     <Button
         android:layout_width="wrap_content"

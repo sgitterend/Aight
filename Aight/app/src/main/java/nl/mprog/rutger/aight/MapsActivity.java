@@ -162,15 +162,15 @@ public class MapsActivity extends FragmentActivity {
 
                     // get other data of event
                     ParseGeoPoint point = object.getParseGeoPoint("location");
-                    String username = object.getString("username");
                     String description = object.getString("description");
                     Integer duration = object.getInt("duration");
+                    String user = object.getString("username");
                     Long eventAgeInSecs = ((currentTimeSecs - eventTimeSecs) / 1000);
                     int eventAgeInMins = (int) (eventAgeInSecs / 60);
 
                     if (eventAgeInSecs <= 4200 && eventAgeInMins < duration) {
                         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
-                                point.getLongitude())).title((String) username)
+                                point.getLongitude())).title((String) user)
                                 .snippet((String) (description + " - " + (duration - eventAgeInMins) + " min left"))
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
                     }

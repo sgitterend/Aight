@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 
@@ -106,10 +107,16 @@ public class CreateEvent extends Activity {
         }
 
         // send to parse
-        placeObject.put("username", "Rutger");
         placeObject.put("duration", Duration);
         placeObject.put("description", message);
         placeObject.put("location", point);
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            String user = currentUser.getUsername();
+            placeObject.put("username", user);
+        } else {
+            finish();
+        }
 
         // only go back to MapsActivity if saving is complete
         placeObject.saveInBackground(new SaveCallback() {

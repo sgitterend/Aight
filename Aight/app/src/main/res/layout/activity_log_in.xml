@@ -20,7 +20,8 @@
         android:textColor="@color/White"
         android:inputType="textEmailAddress"
         android:maxLines="1"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:backgroundTint="@color/Green"/>
 
     <EditText
         android:layout_marginTop="48sp"
@@ -36,7 +37,8 @@
         android:singleLine="true"
         android:imeActionId="@+id/edittext_action_login"
         android:imeActionLabel="@string/log_in"
-        android:imeOptions="actionUnspecified" />
+        android:imeOptions="actionUnspecified"
+        android:backgroundTint="@color/Green" />
 
     <Button
         android:id="@+id/login_button"
