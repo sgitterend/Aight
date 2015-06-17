@@ -25,7 +25,7 @@
         android:textSize="32sp"
         android:textColor="@color/White"
         android:padding="16sp"
-        android:onClick="goMapsView"/>
+        android:onClick="goLogIn"/>
 
     <Button
         android:id="@+id/signupbutton"
@@ -38,5 +38,5 @@
         android:textSize="32sp"
         android:textColor="@color/White"
         android:padding="16sp"
-        android:onClick="goMapsView"/>
+        android:onClick="goSignUp"/>
 </LinearLayout>

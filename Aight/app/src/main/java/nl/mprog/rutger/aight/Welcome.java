@@ -22,15 +22,22 @@ public class Welcome extends Activity {
     }
 
 
-    // Allow user to create an event
-    public void goMapsView(View view) {
+    // Either let user log in or create an account
+    public void goLogIn(View view) {
 
         // create intent for create Event activity
-        Intent go = new Intent(this, MapsActivity.class);
+        Intent go = new Intent(this, LogIn.class);
 
-        // Go to MapsActivity
+        // Go to login screen
         startActivity(go);
-        finish();
+    }
+    public void goSignUp(View view) {
+
+        // create intent for create Event activity
+        Intent go = new Intent(this, SignUp.class);
+
+        // Go to go to sign up screen
+        startActivity(go);
     }
 }
 

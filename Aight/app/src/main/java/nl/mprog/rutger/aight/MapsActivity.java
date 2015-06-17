@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -28,6 +29,7 @@ import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.Date;
 import java.util.List;
@@ -84,7 +86,6 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
-
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
      * just add a marker near Africa.
@@ -99,14 +100,19 @@ public class MapsActivity extends FragmentActivity {
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
         // make a fab button to locate current position
-        ImageButton fabLocate;
-        fabLocate = (ImageButton) findViewById(R.id.fablocate);
+        ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
 
         fabLocate.setOnClickListener(new View.OnClickListener() {
-             public void onClick(View v) {
-                 getMyLocation();
-             }
-         });
+            public void onClick(View v) {
+                getMyLocation();
+            }
+        });
+
+        // make a fab button to log out
+        Button fablogOut = (Button) findViewById(R.id.fablogout);
+        fablogOut.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {logOut(v);}
+        });
 
         /** the following lines are based on this tutorial:
          *  http://bit.ly/1KoNLoA
@@ -136,9 +142,6 @@ public class MapsActivity extends FragmentActivity {
         // Show the current location in Google Map
         mMap.moveCamera(CameraUpdateFactory.newLatLng(UserLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-
-        // initialize parse database connection
-        Parse.initialize(this, "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8", "zXSgVFnOxCpRktMpvdTjGQ5YKObO69qqj9bFdNNm");
 
         // get list of events from parse
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
@@ -216,6 +219,15 @@ public class MapsActivity extends FragmentActivity {
         LatLng latLng = new LatLng(latitude, longitude);
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
         mMap.animateCamera(cameraUpdate);
+    }
+
+    private void logOut(View view) {
+        ParseUser.logOut();
+
+        // create intent for welcome activity
+        Intent go = new Intent(this, Welcome.class);
+        startActivity(go);
+        finish();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
