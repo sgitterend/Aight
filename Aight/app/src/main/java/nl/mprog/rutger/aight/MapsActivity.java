@@ -3,6 +3,7 @@ package nl.mprog.rutger.aight;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.view.View;
@@ -21,7 +22,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
 import com.parse.Parse;
@@ -33,6 +36,11 @@ import com.parse.ParseUser;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.datatype.Duration;
 
@@ -94,6 +102,7 @@ public class MapsActivity extends FragmentActivity {
      */
     private void setUpMap() {
 
+        // set standard map UI settings
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.getUiSettings().setCompassEnabled(false);
@@ -101,7 +110,6 @@ public class MapsActivity extends FragmentActivity {
 
         // make a fab button to locate current position
         ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
-
         fabLocate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getMyLocation();
@@ -111,7 +119,9 @@ public class MapsActivity extends FragmentActivity {
         // make a fab button to log out
         Button fablogOut = (Button) findViewById(R.id.fablogout);
         fablogOut.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {logOut(v);}
+            public void onClick(View v) {
+                logOut(v);
+            }
         });
 
         /** the following lines are based on this tutorial:
@@ -143,47 +153,71 @@ public class MapsActivity extends FragmentActivity {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(UserLocation));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
 
-        // get list of events from parse
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+        // refresh markers every 3 seconds
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(placeMarkers, 0, 3, TimeUnit.SECONDS);
 
-        // query.whereLessThan("createdAt", )
+    }
 
-        final Date currentTime = new Date();
-        final long currentTimeSecs = currentTime.getTime();
-        query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> list, ParseException e) {
-                for (int i = 0; i < list.size(); i++) {
-                    // get event object
-                    ParseObject object = list.get(i);
+    Runnable placeMarkers = new Runnable() {
+        public void run() {
+            // get list of events from parse
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
 
-                    // get time of the event
-                    final Date eventTime = object.getCreatedAt();
-                    long eventTimeSecs = eventTime.getTime();
+            // get current time
+            final Date currentTime = new Date();
+            final long currentTimeSecs = currentTime.getTime();
 
-                    // get other data of event
-                    ParseGeoPoint point = object.getParseGeoPoint("location");
-                    String description = object.getString("description");
-                    Integer duration = object.getInt("duration");
-                    String user = object.getString("username");
-                    Long eventAgeInSecs = ((currentTimeSecs - eventTimeSecs) / 1000);
-                    int eventAgeInMins = (int) (eventAgeInSecs / 60);
+            query.findInBackground(new FindCallback<ParseObject>() {
+                public void done(List<ParseObject> list, ParseException e) {
 
-                    if (eventAgeInSecs <= 4200 && eventAgeInMins < duration) {
-                        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
-                                point.getLongitude())).title((String) user)
-                                .snippet((String) (description + " - " + (duration - eventAgeInMins) + " min left"))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
+                    int count = list.size();
+                    for (int i = 0; i < count; i++) {
+                        // get event object
+                        ParseObject object = list.get(i);
+
+                        // get time of the event
+                        final Date eventTime = object.getCreatedAt();
+                        long eventTimeSecs = eventTime.getTime();
+
+                        // get other data of event
+                        ParseGeoPoint point = object.getParseGeoPoint("location");
+                        String description = object.getString("description");
+                        Integer duration = object.getInt("duration");
+                        String user = object.getString("username");
+                        Long eventAgeInSecs = ((currentTimeSecs - eventTimeSecs) / 1000);
+
+                        // only show current events
+                        if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
+                            addMarker(point, description, duration, user, eventAgeInSecs);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+    };
+    public String timeLeft;
+    public void addMarker(ParseGeoPoint point, String description, Integer duration, String user,
+                          Long eventAgeInSecs) {
+//        Resources res = getResources();
+//
+//        if ((duration * 60 - eventAgeInSecs) < 60) {
+//            String timeLeft = (String.format("R.string.timeleft", res.getQuantityString(R.plurals.minute_plural, 1)));
+//        }
+//        else {
+//            String timeLeft = res.getQuantityString(R.plurals.minute_plural,(int) (eventAgeInSecs / 60));
+//        }
 
-
+//        public final Marker addMarker (MarkerOptions options)
+        String timeLeft = "time";
+        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
+                point.getLongitude())).title((String) user)
+                .snippet(description + timeLeft)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
     }
 
     // Allow user to create an event
     public void goCreateEvent(View view) {
-
         // create intent for create Event activity
         Intent go = new Intent(this, CreateEvent.class);
 
@@ -207,6 +241,7 @@ public class MapsActivity extends FragmentActivity {
         view.invalidate();
     }
 
+    // get location and zoom in to it
     private void getMyLocation() {
         // Get location
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -221,6 +256,7 @@ public class MapsActivity extends FragmentActivity {
         mMap.animateCamera(cameraUpdate);
     }
 
+    // allow a user to log out
     private void logOut(View view) {
         ParseUser.logOut();
 

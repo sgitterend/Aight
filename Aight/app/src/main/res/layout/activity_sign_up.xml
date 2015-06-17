@@ -16,7 +16,7 @@
         android:hint="@string/prompt_username"
         android:textColorHint="@color/washed_orange"
         android:textColor="@color/White"
-        android:inputType="textEmailAddress"
+        android:inputType="textCapSentences"
         android:maxLines="1"
         android:singleLine="true"
         android:backgroundTint="@color/blue"/>

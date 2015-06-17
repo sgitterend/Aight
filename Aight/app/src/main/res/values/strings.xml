@@ -33,6 +33,13 @@
 
     <string name="log_out">Logout</string>
     <string name="title_activity_sign_up">Sign Up</string>
+    <string name="timeleft">| %s left</string>
+
+    <plurals name="minute_plural">
+        <item quantity="one">&#60; 1 minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+
 
 
 </resources>
