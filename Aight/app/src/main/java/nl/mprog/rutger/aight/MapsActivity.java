@@ -1,11 +1,18 @@
 package nl.mprog.rutger.aight;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.location.LocationProvider;
 import android.os.Build;
+import android.provider.Settings;
+import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.location.Criteria;
 import android.location.Location;
@@ -17,6 +24,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,22 +37,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.datatype.Duration;
 
 public class MapsActivity extends FragmentActivity {
 
@@ -56,9 +63,25 @@ public class MapsActivity extends FragmentActivity {
         // set translucent statusbar
         Window window = this.getWindow();
         setColor(window);
+
+        createLocationRequest();
+
+        // build map
         setUpMapIfNeeded();
     }
 
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        ...
+        if (mRequestingLocationUpdates) {
+            startLocationUpdates();
+        }
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -124,38 +147,12 @@ public class MapsActivity extends FragmentActivity {
             }
         });
 
-        /** the following lines are based on this tutorial:
-         *  http://bit.ly/1KoNLoA
-         *
-         *  Get LocationManager object from System Service LOCATION_SERVICE */
-
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        // Create a criteria object to retrieve provider
-        Criteria criteria = new Criteria();
-
-        // Get the name of the best provider
-        String provider = lm.getBestProvider(criteria, true);
-
-        // Get Current Location
-        Location myLocation = lm.getLastKnownLocation(provider);
-
-        // Get latitude of the current location
-        final double latitude = myLocation.getLatitude();
-
-        // Get longitude of the current location
-        final double longitude = myLocation.getLongitude();
-
-        // Create a LatLng object for the current location
-        LatLng UserLocation = new LatLng(latitude, longitude);
-
-        // Show the current location in Google Map
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(UserLocation));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+        // get current location on the map
+        getMyLocation();
 
         // refresh markers every 3 seconds
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(placeMarkers, 0, 3, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(placeMarkers, 0, 50, TimeUnit.SECONDS);
 
     }
 
@@ -185,7 +182,7 @@ public class MapsActivity extends FragmentActivity {
                         String description = object.getString("description");
                         Integer duration = object.getInt("duration");
                         String user = object.getString("username");
-                        Long eventAgeInSecs = ((currentTimeSecs - eventTimeSecs) / 1000);
+                        int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
 
                         // only show current events
                         if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
@@ -196,28 +193,22 @@ public class MapsActivity extends FragmentActivity {
             });
         }
     };
-    public String timeLeft;
+
     public void addMarker(ParseGeoPoint point, String description, Integer duration, String user,
-                          Long eventAgeInSecs) {
-//        Resources res = getResources();
-//
-//        if ((duration * 60 - eventAgeInSecs) < 60) {
-//            String timeLeft = (String.format("R.string.timeleft", res.getQuantityString(R.plurals.minute_plural, 1)));
-//        }
-//        else {
-//            String timeLeft = res.getQuantityString(R.plurals.minute_plural,(int) (eventAgeInSecs / 60));
-//        }
+                          int eventAgeInSecs) {
+
 
 //        public final Marker addMarker (MarkerOptions options)
-        String timeLeft = "time";
         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
                 point.getLongitude())).title((String) user)
-                .snippet(description + timeLeft)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
+                .snippet(description + getString(R.string.time_left, (duration - eventAgeInSecs / 60)))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
     }
 
     // Allow user to create an event
     public void goCreateEvent(View view) {
+
+
         // create intent for create Event activity
         Intent go = new Intent(this, CreateEvent.class);
 
@@ -236,36 +227,83 @@ public class MapsActivity extends FragmentActivity {
         go.putExtras(b);
 
         // Go to CreateEvent activity
-        mMap = null;
         startActivity(go);
-        view.invalidate();
     }
 
     // get location and zoom in to it
     private void getMyLocation() {
-        // Get location
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = lm.getBestProvider(criteria, true);
-        Location myLocation = lm.getLastKnownLocation(provider);
-        final double latitude = myLocation.getLatitude();
-        final double longitude = myLocation.getLongitude();
 
-        LatLng latLng = new LatLng(latitude, longitude);
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
-        mMap.animateCamera(cameraUpdate);
+
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (lm == null) {
+            Log.d(">>>", " lm = " + lm);
+        }
+        else {
+            Criteria criteria = new Criteria();
+            String provider = lm.getBestProvider(criteria, true);
+            Location myLocation = lm.getLastKnownLocation(provider);
+            if (myLocation != null) {
+                final double latitude = myLocation.getLatitude();
+                final double longitude = myLocation.getLongitude();
+
+                LatLng latLng = new LatLng(latitude, longitude);
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
+                mMap.animateCamera(cameraUpdate);
+            }
+            else {
+                promptGPS(this);
+            }
+        }
     }
+
+
 
     // allow a user to log out
     private void logOut(View view) {
         ParseUser.logOut();
 
-        // create intent for welcome activity
+        // go to welcome activity
         Intent go = new Intent(this, Welcome.class);
         startActivity(go);
         finish();
     }
 
+
+    protected void createLocationRequest() {
+
+        // request location from google location services
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(3000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    public static void promptGPS(final Activity activity)
+    {
+        final AlertDialog.Builder builder =  new AlertDialog.Builder(activity);
+        final String action = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+        final String message = "Your location is unavailable. \nTurn GPS on?";
+
+        builder.setMessage(message)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int id) {
+                                activity.startActivity(new Intent(action));
+                                d.dismiss();
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int id) {
+                                d.cancel();
+                            }
+                        });
+        builder.create().show();
+    }
+
+
+
+    // make status bar transparent on android 5.0 and higher
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     final void setColor(Window window) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
