@@ -23,12 +23,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
-
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -55,77 +51,22 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class MapsActivity extends FragmentActivity implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
-
-
-    private final String TAG = "AIGHT";
-
-
-    private GoogleApiClient mGoogleApiClient;
-
-    private LocationRequest mLocationRequest;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        // set translucent statusbar
+        Window window = this.getWindow();
+        setColor(window);
+
         // build map
         setUpMapIfNeeded();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Connect the client.
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        // Disconnecting the client invalidates it.
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(1000); // Update location every second
-
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.i(TAG, "GoogleApiClient connection has been suspend");
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.i(TAG, "GoogleApiClient connection has failed");
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
-    }
-
 
     @Override
     protected void onResume() {
@@ -179,7 +120,7 @@ public class MapsActivity extends FragmentActivity implements
         // make a fab button to locate current position
         ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
         fabLocate.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {getMyLocation();}
+            public void onClick(View v) {goToMyLocation();}
         });
 
         // make a fab button to log out
@@ -188,12 +129,12 @@ public class MapsActivity extends FragmentActivity implements
             public void onClick(View v) {logOut(v);}
         });
 
-        // get current location on the map
-        getMyLocation();
+        // go to current location on the map
+        goToMyLocation();
 
         // refresh markers every 3 seconds
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(placeMarkers, 0, 50, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(placeMarkers, 0, 5, TimeUnit.SECONDS);
 
     }
 
@@ -249,45 +190,45 @@ public class MapsActivity extends FragmentActivity implements
     // Allow user to create an event
     public void goCreateEvent(View view) {
 
+        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+            @Override
+            public void gotLocation(Location location) {
+                Intent go = new Intent(MapsActivity.this, CreateEvent.class);
+                Bundle b = new Bundle();
+                b.putDouble("latitude", location.getLatitude());
+                b.putDouble("longitude", location.getLongitude());
+                // Go to CreateEvent activity
+                go.putExtras(b);
+                startActivity(go);
 
-        // create intent for create Event activity
-        Intent go = new Intent(this, CreateEvent.class);
+            }
+        };
+        MyLocation myLocation = new MyLocation();
+        myLocation.getLocation(this, locationResult);
 
-        Location currentLocation = getLocation();
-        double latitude = currentLocation.getLatitude();
-        double longitude = currentLocation.getLongitude();
-
-        // give location along
-        Bundle b = new Bundle();
-        b.putDouble("latitude", latitude);
-        b.putDouble("longitude", longitude);
-        go.putExtras(b);
-
-        // Go to CreateEvent activity
-        startActivity(go);
+        // prompt user to turn locaation on if not found
+        if (!myLocation.gps_enabled && !myLocation.network_enabled) {
+            promptGPS(this);
+        }
     }
 
     // get location and zoom in to it
-    private void getMyLocation() {
+    private void goToMyLocation() {
 
-
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (lm == null) {
-            Log.d(">>>", " lm = " + lm);
-        }
-        else {
-            Location currentLocation = getLocation();
-            if (currentLocation != null) {
-            double latitude = currentLocation.getLatitude();
-            double longitude = currentLocation.getLongitude();
-
-                LatLng latLng = new LatLng(latitude, longitude);
+        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+            @Override
+            public void gotLocation(Location location) {
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                 mMap.animateCamera(cameraUpdate);
             }
-            else {
-                promptGPS(this);
-            }
+        };
+        MyLocation myLocation = new MyLocation();
+        myLocation.getLocation(this, locationResult);
+
+        // prompt user to turn locaation on if not found
+        if (!myLocation.gps_enabled && !myLocation.network_enabled) {
+            promptGPS(this);
         }
     }
 
@@ -303,16 +244,6 @@ public class MapsActivity extends FragmentActivity implements
         finish();
     }
 
-
-    protected Location getLocation() {
-        // request location from google location services
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        return LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-    }
 
     public static void promptGPS(final Activity activity)
     {
