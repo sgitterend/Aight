@@ -3,20 +3,14 @@ package nl.mprog.rutger.aight;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.location.LocationProvider;
 import android.os.Build;
 import android.provider.Settings;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.Window;
@@ -24,17 +18,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -117,36 +106,47 @@ public class MapsActivity extends FragmentActivity {
         mMap.getUiSettings().setCompassEnabled(false);
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
-        // make a fab button to locate current position
-        ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
-        fabLocate.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {goToMyLocation();}
-        });
-
-        // make a fab button to log out
-        Button fablogOut = (Button) findViewById(R.id.fablogout);
-        fablogOut.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {logOut(v);}
-        });
 
         // go to current location on the map
         goToMyLocation();
 
-        // refresh markers every 3 seconds
+        createFABS();
+        // refresh markers every 30 seconds
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(placeMarkers, 0, 5, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(placeMarkers, 0, 30, TimeUnit.SECONDS);
 
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // run this every 5 seconds
     Runnable placeMarkers = new Runnable() {
         public void run() {
-            // get list of events from parse
+
+             // get list of events from parse
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
 
             // get current time
             final Date currentTime = new Date();
             final long currentTimeSecs = currentTime.getTime();
 
+            // get all markers off of map before creating current ones
+            mMap.clear();
+
+            //query current events
             query.findInBackground(new FindCallback<ParseObject>() {
                 public void done(List<ParseObject> list, ParseException e) {
 
@@ -166,9 +166,9 @@ public class MapsActivity extends FragmentActivity {
                         String user = object.getString("username");
                         int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
 
-                        // only show current events
+                        // only add active events
                         if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
-                            addMarker(point, description, duration, user, eventAgeInSecs);
+                            putMarker(point, description, duration, user, eventAgeInSecs);
                         }
                     }
                 }
@@ -176,10 +176,17 @@ public class MapsActivity extends FragmentActivity {
         }
     };
 
-    public void addMarker(ParseGeoPoint point, String description, Integer duration, String user,
+
+
+
+
+
+
+
+
+
+    public void putMarker(ParseGeoPoint point, String description, Integer duration, String user,
                           int eventAgeInSecs) {
-
-
 //        public final Marker addMarker (MarkerOptions options)
         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
                 point.getLongitude())).title((String) user)
@@ -197,6 +204,7 @@ public class MapsActivity extends FragmentActivity {
                 Bundle b = new Bundle();
                 b.putDouble("latitude", location.getLatitude());
                 b.putDouble("longitude", location.getLongitude());
+
                 // Go to CreateEvent activity
                 go.putExtras(b);
                 startActivity(go);
@@ -206,7 +214,7 @@ public class MapsActivity extends FragmentActivity {
         MyLocation myLocation = new MyLocation();
         myLocation.getLocation(this, locationResult);
 
-        // prompt user to turn locaation on if not found
+        // prompt user to turn location on if not found
         if (!myLocation.gps_enabled && !myLocation.network_enabled) {
             promptGPS(this);
         }
@@ -244,9 +252,8 @@ public class MapsActivity extends FragmentActivity {
         finish();
     }
 
-
-    public static void promptGPS(final Activity activity)
-    {
+    // prompts user to turn location on
+    public static void promptGPS(final Activity activity) {
         final AlertDialog.Builder builder =  new AlertDialog.Builder(activity);
         final String action = Settings.ACTION_LOCATION_SOURCE_SETTINGS;
         final String message = "Your location is unavailable. \nTurn GPS on?";
@@ -268,7 +275,20 @@ public class MapsActivity extends FragmentActivity {
         builder.create().show();
     }
 
+    // create floating action buttons for current location and logout
+    public void createFABS() {
+        // make a fab button to locate current position
+        ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
+        fabLocate.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {goToMyLocation();}
+        });
 
+        // make a fab button to log out
+        Button fablogOut = (Button) findViewById(R.id.fablogout);
+        fablogOut.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {logOut(v);}
+        });
+    }
 
     // make status bar transparent on android 5.0 and higher
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
