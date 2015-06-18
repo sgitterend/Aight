@@ -9,16 +9,11 @@ package nl.mprog.rutger.aight;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 
 public class MyLocation {
     Timer timer1;

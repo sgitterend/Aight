@@ -17,6 +17,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,6 +26,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -33,7 +36,9 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -43,6 +48,8 @@ import java.util.concurrent.TimeUnit;
 public class MapsActivity extends FragmentActivity {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private ArrayList<MyMarker> mMyMarkersArray = new ArrayList<MyMarker>();
+    private HashMap<Marker, MyMarker> mMarkersHashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,15 +112,13 @@ public class MapsActivity extends FragmentActivity {
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
         mMap.getUiSettings().setCompassEnabled(false);
         mMap.getUiSettings().setMapToolbarEnabled(false);
-
-
         // go to current location on the map
         goToMyLocation();
 
         createFABS();
-        // refresh markers every 30 seconds
+        // refresh markers every 15 seconds
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(placeMarkers, 0, 30, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(placeMarkers, 0, 15, TimeUnit.SECONDS);
 
     }
 
@@ -136,6 +141,7 @@ public class MapsActivity extends FragmentActivity {
     Runnable placeMarkers = new Runnable() {
         public void run() {
 
+            mMap.setInfoWindowAdapter(new MarkerInfoWindowAdapter());
              // get list of events from parse
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
 
@@ -143,12 +149,14 @@ public class MapsActivity extends FragmentActivity {
             final Date currentTime = new Date();
             final long currentTimeSecs = currentTime.getTime();
 
-            // get all markers off of map before creating current ones
-            mMap.clear();
+
 
             //query current events
             query.findInBackground(new FindCallback<ParseObject>() {
                 public void done(List<ParseObject> list, ParseException e) {
+
+                    // get all markers off of map before creating current ones
+                    mMap.clear();
 
                     int count = list.size();
                     for (int i = 0; i < count; i++) {
@@ -187,16 +195,15 @@ public class MapsActivity extends FragmentActivity {
 
     public void putMarker(ParseGeoPoint point, String description, Integer duration, String user,
                           int eventAgeInSecs) {
-//        public final Marker addMarker (MarkerOptions options)
-        mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
-                point.getLongitude())).title((String) user)
-                .snippet(description + getString(R.string.time_left, (duration - eventAgeInSecs / 60)))
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
+         mMyMarkersArray.add(new MyMarker("user", "BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red))", point.getLatitude(), point.getLongitude()));
     }
+
+
+
 
     // Allow user to create an event
     public void goCreateEvent(View view) {
-
+        view.invalidate();
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
@@ -289,6 +296,60 @@ public class MapsActivity extends FragmentActivity {
             public void onClick(View v) {logOut(v);}
         });
     }
+
+
+    /**
+     * Taken from:
+     * http://www.rogcg.com/blog/2014/04/20/android-working-with-google-maps-v2-and-custom-markers
+     */
+    public class MarkerInfoWindowAdapter implements GoogleMap.InfoWindowAdapter
+    {
+        public MarkerInfoWindowAdapter()
+        {
+        }
+
+        @Override
+        public View getInfoWindow(Marker marker)
+        {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker)
+        {
+            View v  = getLayoutInflater().inflate(R.layout.infowindow_layout, null);
+
+            MyMarker myMarker = mMarkersHashMap.get(marker);
+
+            ImageView markerIcon = (ImageView) v.findViewById(R.id.marker_icon);
+
+            TextView markerLabel = (TextView)v.findViewById(R.id.marker_label);
+
+            markerLabel.setText(myMarker.getmLabel());
+
+            return v;
+        }
+    }
+
+    private void plotMarkers(ArrayList<MyMarker> markers)
+    {
+        if(markers.size() > 0)
+        {
+            for (MyMarker myMarker : markers)
+            {
+
+                // Create user marker with custom icon and other options
+                MarkerOptions markerOption = new MarkerOptions().position(new LatLng(myMarker.getmLatitude(), myMarker.getmLongitude()));
+                markerOption.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red));
+
+                Marker currentMarker = mMap.addMarker(markerOption);
+                mMarkersHashMap.put(currentMarker, myMarker);
+
+                mMap.setInfoWindowAdapter(new MarkerInfoWindowAdapter());
+            }
+        }
+    }
+
 
     // make status bar transparent on android 5.0 and higher
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
