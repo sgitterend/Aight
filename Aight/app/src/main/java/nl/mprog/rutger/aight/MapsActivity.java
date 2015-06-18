@@ -23,8 +23,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
+
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -51,37 +55,78 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class MapsActivity extends FragmentActivity {
+public class MapsActivity extends FragmentActivity implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
+
+
+    private final String TAG = "AIGHT";
+
+
+    private GoogleApiClient mGoogleApiClient;
+
+    private LocationRequest mLocationRequest;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
-        // set translucent statusbar
-        Window window = this.getWindow();
-        setColor(window);
-
-        createLocationRequest();
-
         // build map
         setUpMapIfNeeded();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
     }
 
     @Override
-    public void onConnected(Bundle connectionHint) {
-        ...
-        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
-        }
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        mGoogleApiClient.connect();
     }
 
-    protected void startLocationUpdates() {
+    @Override
+    protected void onStop() {
+        // Disconnecting the client invalidates it.
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(1000); // Update location every second
+
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient, mLocationRequest, this);
     }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.i(TAG, "GoogleApiClient connection has been suspend");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.i(TAG, "GoogleApiClient connection has failed");
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -134,17 +179,13 @@ public class MapsActivity extends FragmentActivity {
         // make a fab button to locate current position
         ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
         fabLocate.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                getMyLocation();
-            }
+            public void onClick(View v) {getMyLocation();}
         });
 
         // make a fab button to log out
         Button fablogOut = (Button) findViewById(R.id.fablogout);
         fablogOut.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                logOut(v);
-            }
+            public void onClick(View v) {logOut(v);}
         });
 
         // get current location on the map
@@ -212,13 +253,9 @@ public class MapsActivity extends FragmentActivity {
         // create intent for create Event activity
         Intent go = new Intent(this, CreateEvent.class);
 
-        // Get location
-        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = lm.getBestProvider(criteria, true);
-        Location myLocation = lm.getLastKnownLocation(provider);
-        final double latitude = myLocation.getLatitude();
-        final double longitude = myLocation.getLongitude();
+        Location currentLocation = getLocation();
+        double latitude = currentLocation.getLatitude();
+        double longitude = currentLocation.getLongitude();
 
         // give location along
         Bundle b = new Bundle();
@@ -239,12 +276,10 @@ public class MapsActivity extends FragmentActivity {
             Log.d(">>>", " lm = " + lm);
         }
         else {
-            Criteria criteria = new Criteria();
-            String provider = lm.getBestProvider(criteria, true);
-            Location myLocation = lm.getLastKnownLocation(provider);
-            if (myLocation != null) {
-                final double latitude = myLocation.getLatitude();
-                final double longitude = myLocation.getLongitude();
+            Location currentLocation = getLocation();
+            if (currentLocation != null) {
+            double latitude = currentLocation.getLatitude();
+            double longitude = currentLocation.getLongitude();
 
                 LatLng latLng = new LatLng(latitude, longitude);
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
@@ -269,13 +304,14 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
-    protected void createLocationRequest() {
-
+    protected Location getLocation() {
         // request location from google location services
-        LocationRequest mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(3000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        return LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
     }
 
     public static void promptGPS(final Activity activity)
