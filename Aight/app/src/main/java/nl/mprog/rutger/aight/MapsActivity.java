@@ -239,7 +239,7 @@ public class MapsActivity extends FragmentActivity {
         MyLocation myLocation = new MyLocation();
         myLocation.getLocation(this, locationResult);
 
-        // prompt user to turn locaation on if not found
+        // prompt user to turn location on if not found
         if (!myLocation.gps_enabled && !myLocation.network_enabled) {
             promptGPS(this);
         }
