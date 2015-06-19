@@ -26,11 +26,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+import com.parse.SendCallback;
 
 
 import java.util.Date;
@@ -55,6 +59,9 @@ public class MapsActivity extends FragmentActivity {
 
         // build map
         setUpMapIfNeeded();
+
+        // get all notifications
+        ParsePush.subscribeInBackground("all");
     }
 
     @Override
@@ -132,7 +139,7 @@ public class MapsActivity extends FragmentActivity {
 
 
 
-    // run this every 5 seconds
+    // run this every 15 seconds
     Runnable placeMarkers = new Runnable() {
         public void run() {
 
@@ -194,6 +201,38 @@ public class MapsActivity extends FragmentActivity {
                 point.getLongitude())).title((String) user)
                 .snippet(description + getString(R.string.time_left, (duration - eventAgeInSecs / 60)))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
+
+        // look for notifications
+        if (ParseUser.getCurrentUser() != null) {
+            ParseUser currentUser = ParseUser.getCurrentUser();
+
+            if (eventAgeInSecs < 15 && !user.equals(currentUser.getUsername())) {
+                ParsePush push = new ParsePush();
+                push.setChannel("all");
+                push.setMessage(user + " has created an event!");
+                push.sendInBackground(new SendCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Log.d(">>>", "" + e);
+                    }
+                });
+            }
+//            final ParseGeoPoint pointLocation = point;
+//            MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+//                @Override
+//                public void gotLocation(Location location) {
+//                    // got location!
+//                }
+//            };
+//            MyLocation myLocation = new MyLocation();
+//            myLocation.getLocation(this, locationResult);
+
+//
+//            double latDifference = Math.pow((location.getLatitude() - pointLocation.getLatitude()), 2);
+//            double longDifference = Math.pow((location.getLongitude() - pointLocation.getLongitude()),2);
+//            final double distance = Math.pow((latDifference + longDifference), 0.5);
+//
+        }
     }
 
 
