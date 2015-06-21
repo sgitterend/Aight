@@ -3,11 +3,14 @@ package nl.mprog.rutger.aight;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.location.Location;
@@ -31,6 +34,7 @@ import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
+import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -216,7 +220,7 @@ public class MapsActivity extends FragmentActivity {
                         Log.d(">>>", "" + e);
                     }
                 });
-            }
+
 //            final ParseGeoPoint pointLocation = point;
 //            MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
 //                @Override
@@ -232,6 +236,7 @@ public class MapsActivity extends FragmentActivity {
 //            double longDifference = Math.pow((location.getLongitude() - pointLocation.getLongitude()),2);
 //            final double distance = Math.pow((latDifference + longDifference), 0.5);
 //
+            }
         }
     }
 
@@ -342,6 +347,17 @@ public class MapsActivity extends FragmentActivity {
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
             window.setStatusBarColor(Color.argb((int) (0.2 * 255.0f), 0, 0, 0));
+        }
+    }
+    public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
+
+        @Override
+        protected Notification getNotification(Context context, Intent intent) {
+            Notification notification = super.getNotification(context, intent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                notification.color = context.getResources().getColor(R.color.ColorPrimary);
+            }
+            return notification;
         }
     }
 }
