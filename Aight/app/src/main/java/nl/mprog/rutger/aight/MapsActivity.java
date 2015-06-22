@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -246,6 +247,11 @@ public class MapsActivity extends FragmentActivity {
     // Allow user to create an event
     public void goCreateEvent(View view) {
 
+        // keep the users patience
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage(getString(R.string.getting_location));
+        dialog.show();
+
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
@@ -257,6 +263,7 @@ public class MapsActivity extends FragmentActivity {
                 // Go to CreateEvent activity
                 go.putExtras(b);
                 startActivity(go);
+                dialog.hide();
 
             }
         };
@@ -335,14 +342,16 @@ public class MapsActivity extends FragmentActivity {
         // make a fab button to log out
         Button fablogOut = (Button) findViewById(R.id.fablogout);
         fablogOut.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {logOut(v);}
+            public void onClick(View v) {
+                logOut(v);
+            }
         });
     }
 
     // make status bar transparent on android 5.0 and higher
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     final void setColor(Window window) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
