@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends FragmentActivity {
 
+    final Boolean pushEnabled = true;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     @Override
@@ -65,31 +66,19 @@ public class MapsActivity extends FragmentActivity {
         // build map
         setUpMapIfNeeded();
 
-        // get all notifications
-        ParsePush.subscribeInBackground("all");
+        if (pushEnabled) {
+            // get all notifications
+            ParsePush.subscribeInBackground("all");
+        }
     }
-
     @Override
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p/>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p/>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
+
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -104,12 +93,6 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
     private void setUpMap() {
 
         // set standard map UI settings
@@ -135,57 +118,48 @@ public class MapsActivity extends FragmentActivity {
 
 
 
-
-
-
-
-
-
-
-
-
     // run this every 15 seconds
     Runnable placeMarkers = new Runnable() {
         public void run() {
 
-             // get list of events from parse
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+         // get list of events from parse
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
 
-            // get current time
-            final Date currentTime = new Date();
-            final long currentTimeSecs = currentTime.getTime();
+        // get current time
+        final Date currentTime = new Date();
+        final long currentTimeSecs = currentTime.getTime();
 
 
 
-            //query current events
-            query.findInBackground(new FindCallback<ParseObject>() {
-                public void done(List<ParseObject> list, ParseException e) {
+        //query current events
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> list, ParseException e) {
 
-                    // get all markers off of map before creating current ones
-                    mMap.clear();
+            // get all markers off of map before creating current ones
+            mMap.clear();
 
-                    int count = list.size();
-                    for (int i = 0; i < count; i++) {
-                        // get event object
-                        ParseObject object = list.get(i);
+            int count = list.size();
+            for (int i = 0; i < count; i++) {
+                // get event object
+                ParseObject object = list.get(i);
 
-                        // get time of the event
-                        final Date eventTime = object.getCreatedAt();
-                        long eventTimeSecs = eventTime.getTime();
+                // get time of the event
+                final Date eventTime = object.getCreatedAt();
+                long eventTimeSecs = eventTime.getTime();
 
-                        // get other data of event
-                        ParseGeoPoint point = object.getParseGeoPoint("location");
-                        String description = object.getString("description");
-                        Integer duration = object.getInt("duration");
-                        String user = object.getString("username");
-                        int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
+                // get other data of event
+                ParseGeoPoint point = object.getParseGeoPoint("location");
+                String description = object.getString("description");
+                Integer duration = object.getInt("duration");
+                String user = object.getString("username");
+                int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
 
-                        // only add active events
-                        if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
-                            putMarker(point, description, duration, user, eventAgeInSecs);
-                        }
-                    }
+                // only add active events
+                if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
+                    putMarker(point, description, duration, user, eventAgeInSecs);
                 }
+            }
+            }
             });
         }
     };
@@ -208,7 +182,7 @@ public class MapsActivity extends FragmentActivity {
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
 
         // look for notifications
-        if (ParseUser.getCurrentUser() != null) {
+        if (ParseUser.getCurrentUser() != null && pushEnabled) {
             ParseUser currentUser = ParseUser.getCurrentUser();
 
             if (eventAgeInSecs < 15 && !user.equals(currentUser.getUsername())) {
@@ -240,8 +214,6 @@ public class MapsActivity extends FragmentActivity {
             }
         }
     }
-
-
 
 
     // Allow user to create an event
@@ -276,6 +248,7 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
+
     // get location and zoom in to it
     private void goToMyLocation() {
 
@@ -305,6 +278,7 @@ public class MapsActivity extends FragmentActivity {
         // go to welcome activity
         Intent go = new Intent(this, Welcome.class);
         startActivity(go);
+        view.invalidate();
         finish();
     }
 
@@ -358,15 +332,5 @@ public class MapsActivity extends FragmentActivity {
             window.setStatusBarColor(Color.argb((int) (0.2 * 255.0f), 0, 0, 0));
         }
     }
-    public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
-        @Override
-        protected Notification getNotification(Context context, Intent intent) {
-            Notification notification = super.getNotification(context, intent);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notification.color = context.getResources().getColor(R.color.ColorPrimary);
-            }
-            return notification;
-        }
-    }
 }

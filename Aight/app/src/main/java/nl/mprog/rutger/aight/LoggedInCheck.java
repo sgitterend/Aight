@@ -18,6 +18,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 
+
 public class LoggedInCheck extends Activity {
     public LoggedInCheck() {
     }
@@ -26,20 +27,6 @@ public class LoggedInCheck extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // initialize parse database connection
-        Parse.initialize(this, "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8", "zXSgVFnOxCpRktMpvdTjGQ5YKObO69qqj9bFdNNm");
-        ParseInstallation.getCurrentInstallation().saveInBackground();
-
-        ParsePush.subscribeInBackground("", new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
-                } else {
-                    Log.e("com.parse.push", "failed to subscribe for push", e);
-                }
-            }
-        });
 
         // Check if there is current user info
         if (ParseUser.getCurrentUser() != null) {
