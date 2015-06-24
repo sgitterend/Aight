@@ -36,6 +36,7 @@ import com.parse.ParsePush;
 import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SendCallback;
 
 
@@ -124,6 +125,9 @@ public class MapsActivity extends FragmentActivity {
     Runnable placeMarkers = new Runnable() {
         public void run() {
 
+
+
+
              // get list of events from parse
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
 
@@ -132,8 +136,6 @@ public class MapsActivity extends FragmentActivity {
             final long currentTimeSecs = currentTime.getTime();
 
 
-
-            //query current events
             query.findInBackground(new FindCallback<ParseObject>() {
                 public void done(List<ParseObject> list, ParseException e) {
 
@@ -182,8 +184,8 @@ public class MapsActivity extends FragmentActivity {
                 .snippet(description + getString(R.string.time_left, (duration - eventAgeInSecs / 60)))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
 
-            
 
+        // compare location of user and of activity to get distance
         final ParseGeoPoint pointLocation = point;
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
@@ -204,14 +206,16 @@ public class MapsActivity extends FragmentActivity {
     public void onDistanceKnown(double distance, int eventAgeInSecs, String user) {
 
         // Don't be overly specific
-        int distanceUnprecise = (int) (((distance + 10) / 10) * 10);
+        int distanceUnprecise = (int) (distance + 30);
 
         // look for notifications
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null) {
             return;
         }
-        if (distanceUnprecise < 3000 && eventAgeInSecs < 15 && !user.equals(currentUser.getUsername())) {
+
+        // only notify for events that are within appx 3km, are new and mady by other user
+        if (distanceUnprecise < 3050 && eventAgeInSecs < 15 && !user.equals(currentUser.getUsername())) {
             ParsePush push = new ParsePush();
             push.setChannel("all");
             push.setMessage(user + " has created an event within " + distanceUnprecise + " meters ");
@@ -266,6 +270,8 @@ public class MapsActivity extends FragmentActivity {
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
+
+                // zoom map to current location
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
                 mMap.animateCamera(cameraUpdate);
