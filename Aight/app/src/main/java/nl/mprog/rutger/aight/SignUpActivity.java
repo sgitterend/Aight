@@ -6,11 +6,8 @@ package nl.mprog.rutger.aight;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -23,7 +20,7 @@ import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
 
-public class SignUp extends Activity {
+public class SignUpActivity extends Activity {
 
     private EditText usernameEditText;
     private EditText passwordEditText;
@@ -91,13 +88,13 @@ public class SignUp extends Activity {
 
         // If there is a validation error, display the error
         if (validationError) {
-            Toast.makeText(SignUp.this, validationErrorMessage.toString(), Toast.LENGTH_LONG)
+            Toast.makeText(SignUpActivity.this, validationErrorMessage.toString(), Toast.LENGTH_LONG)
                     .show();
             return;
         }
 
         // Set up a progress dialog
-        final ProgressDialog dialog = new ProgressDialog(SignUp.this);
+        final ProgressDialog dialog = new ProgressDialog(SignUpActivity.this);
         dialog.setMessage(getString(R.string.progress_signup));
         dialog.show();
 
@@ -113,10 +110,10 @@ public class SignUp extends Activity {
                 dialog.dismiss();
                 if (e != null) {
                     // Show the error message
-                    Toast.makeText(SignUp.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     // Start an intent for the dispatch activity
-                    Intent intent = new Intent(SignUp.this, LoggedInCheck.class);
+                    Intent intent = new Intent(SignUpActivity.this, LoggedInCheck.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }

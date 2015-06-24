@@ -22,13 +22,10 @@ public class LoggedInCheck extends Activity {
     public LoggedInCheck() {
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // initialize parse database connection
-        Parse.initialize(this, "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8", "zXSgVFnOxCpRktMpvdTjGQ5YKObO69qqj9bFdNNm");
-        ParseInstallation.getCurrentInstallation().saveInBackground();
 
         ParsePush.subscribeInBackground("", new SaveCallback() {
             @Override
@@ -47,7 +44,7 @@ public class LoggedInCheck extends Activity {
             startActivity(new Intent(this, MapsActivity.class));
         } else {
             // Start and intent for the logged out activity
-            startActivity(new Intent(this, Welcome.class));
+            startActivity(new Intent(this, WelcomeActivity.class));
         }
         finish();
     }

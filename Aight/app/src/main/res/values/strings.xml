@@ -34,6 +34,7 @@
     <string name="log_out">Logout</string>
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="time_left">" | %d min. left"</string>
+    <string name="getting_location">Getting location...</string>
 
 
 </resources>

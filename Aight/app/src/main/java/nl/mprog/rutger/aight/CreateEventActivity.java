@@ -16,7 +16,7 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 
-public class CreateEvent extends Activity {
+public class CreateEventActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

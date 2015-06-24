@@ -14,7 +14,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,7 +21,7 @@ import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 
-public class LogIn extends Activity {
+public class LogInActivity extends Activity {
 
     // UI references.
     private EditText usernameEditText;
@@ -80,13 +79,13 @@ public class LogIn extends Activity {
 
         // If there is a validation error, display the error
         if (validationError) {
-            Toast.makeText(LogIn.this, validationErrorMessage.toString(), Toast.LENGTH_LONG)
+            Toast.makeText(LogInActivity.this, validationErrorMessage.toString(), Toast.LENGTH_LONG)
                     .show();
             return;
         }
 
         // Set up a progress dialog
-        final ProgressDialog dialog = new ProgressDialog(LogIn.this);
+        final ProgressDialog dialog = new ProgressDialog(LogInActivity.this);
         dialog.setMessage(getString(R.string.progress_login));
         dialog.show();
         // Call the Parse login method
@@ -96,10 +95,10 @@ public class LogIn extends Activity {
                 dialog.dismiss();
                 if (e != null) {
                     // Show the error message
-                    Toast.makeText(LogIn.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(LogInActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     // Start an intent for the login check activity
-                    Intent intent = new Intent(LogIn.this, LoggedInCheck.class);
+                    Intent intent = new Intent(LogInActivity.this, LoggedInCheck.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                 }

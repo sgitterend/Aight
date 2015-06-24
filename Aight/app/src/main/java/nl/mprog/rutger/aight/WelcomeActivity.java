@@ -1,19 +1,12 @@
 package nl.mprog.rutger.aight;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 
-public class Welcome extends Activity {
+public class WelcomeActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +19,7 @@ public class Welcome extends Activity {
     public void goLogIn(View view) {
 
         // create intent for create Event activity
-        Intent go = new Intent(this, LogIn.class);
+        Intent go = new Intent(this, LogInActivity.class);
 
         // Go to login screen
         startActivity(go);
@@ -34,7 +27,7 @@ public class Welcome extends Activity {
     public void goSignUp(View view) {
 
         // create intent for create Event activity
-        Intent go = new Intent(this, SignUp.class);
+        Intent go = new Intent(this, SignUpActivity.class);
 
         // Go to go to sign up screen
         startActivity(go);

@@ -4,13 +4,13 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.provider.Settings;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.location.Location;
@@ -29,7 +29,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -37,7 +36,6 @@ import com.parse.ParsePush;
 import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.parse.SendCallback;
 
 
@@ -64,8 +62,6 @@ public class MapsActivity extends FragmentActivity {
         // build map
         setUpMapIfNeeded();
 
-        // get all notifications
-        ParsePush.subscribeInBackground("all");
     }
 
     @Override
@@ -74,21 +70,7 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p/>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p/>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
+
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -103,12 +85,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
 
-    /**
-     * This is where we can add markers or lines, add listeners or move the camera. In this case, we
-     * just add a marker near Africa.
-     * <p/>
-     * This should only be called once and when we are sure that {@link #mMap} is not null.
-     */
+
     private void setUpMap() {
 
         // set standard map UI settings
@@ -165,23 +142,23 @@ public class MapsActivity extends FragmentActivity {
 
                     int count = list.size();
                     for (int i = 0; i < count; i++) {
-                        // get event object
-                        ParseObject object = list.get(i);
+                        // get event activity
+                        ParseObject activity = list.get(i);
 
                         // get time of the event
-                        final Date eventTime = object.getCreatedAt();
+                        final Date eventTime = activity.getCreatedAt();
                         long eventTimeSecs = eventTime.getTime();
 
                         // get other data of event
-                        ParseGeoPoint point = object.getParseGeoPoint("location");
-                        String description = object.getString("description");
-                        Integer duration = object.getInt("duration");
-                        String user = object.getString("username");
+                        ParseGeoPoint point = activity.getParseGeoPoint("location");
+                        String description = activity.getString("description");
+                        Integer duration = activity.getInt("duration");
+                        String user = activity.getString("username");
                         int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
 
                         // only add active events
                         if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
-                            putMarker(point, description, duration, user, eventAgeInSecs);
+                            putMarker(point, description, duration, user, eventAgeInSecs, currentTimeSecs, eventTimeSecs);
                         }
                     }
                 }
@@ -198,45 +175,53 @@ public class MapsActivity extends FragmentActivity {
 
 
 
-    public void putMarker(ParseGeoPoint point, String description, Integer duration, String user,
-                          int eventAgeInSecs) {
-//        public final Marker addMarker (MarkerOptions options)
+    public void putMarker(final ParseGeoPoint point, String description, Integer duration, final String user,
+                          final int eventAgeInSecs, final long eventTimeSecs, final long currentTimeSecs) {
         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
                 point.getLongitude())).title((String) user)
                 .snippet(description + getString(R.string.time_left, (duration - eventAgeInSecs / 60)))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
 
-        // look for notifications
-        if (ParseUser.getCurrentUser() != null) {
-            ParseUser currentUser = ParseUser.getCurrentUser();
+            
 
-            if (eventAgeInSecs < 15 && !user.equals(currentUser.getUsername())) {
-                ParsePush push = new ParsePush();
-                push.setChannel("all");
-                push.setMessage(user + " has created an event!");
-                push.sendInBackground(new SendCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        Log.d(">>>", "" + e);
-                    }
-                });
+        final ParseGeoPoint pointLocation = point;
+        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+            @Override
+            public void gotLocation(Location location) {
 
-//            final ParseGeoPoint pointLocation = point;
-//            MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-//                @Override
-//                public void gotLocation(Location location) {
-//                    // got location!
-//                }
-//            };
-//            MyLocation myLocation = new MyLocation();
-//            myLocation.getLocation(this, locationResult);
+                double latDifference = Math.pow((location.getLatitude() - pointLocation.getLatitude()), 2);
+                double longDifference = Math.pow((location.getLongitude() - pointLocation.getLongitude()),2);
+                double distance = Math.pow((latDifference + longDifference), 0.5);
 
-//
-//            double latDifference = Math.pow((location.getLatitude() - pointLocation.getLatitude()), 2);
-//            double longDifference = Math.pow((location.getLongitude() - pointLocation.getLongitude()),2);
-//            final double distance = Math.pow((latDifference + longDifference), 0.5);
-//
+                onDistanceKnown(distance, eventAgeInSecs, user);
             }
+        };
+        MyLocation myLocation = new MyLocation();
+        myLocation.getLocation(this, locationResult);
+    }
+
+
+    public void onDistanceKnown(double distance, int eventAgeInSecs, String user) {
+
+        // Don't be overly specific
+        int distanceUnprecise = (int) (((distance + 10) / 10) * 10);
+
+        // look for notifications
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser == null) {
+            return;
+        }
+        if (distanceUnprecise < 3000 && eventAgeInSecs < 15 && !user.equals(currentUser.getUsername())) {
+            ParsePush push = new ParsePush();
+            push.setChannel("all");
+            push.setMessage(user + " has created an event within " + distanceUnprecise + " meters ");
+            push.sendInBackground(new SendCallback() {
+                @Override
+                public void done(ParseException e) {
+                    Log.d(">>>", "" + e);
+                }
+            });
+
         }
     }
 
@@ -246,17 +231,23 @@ public class MapsActivity extends FragmentActivity {
     // Allow user to create an event
     public void goCreateEvent(View view) {
 
+        // keep the users patience
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage(getString(R.string.getting_location));
+        dialog.show();
+
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
-                Intent go = new Intent(MapsActivity.this, CreateEvent.class);
+                Intent go = new Intent(MapsActivity.this, CreateEventActivity.class);
                 Bundle b = new Bundle();
                 b.putDouble("latitude", location.getLatitude());
                 b.putDouble("longitude", location.getLongitude());
 
-                // Go to CreateEvent activity
+                // Go to CreateEventActivity activity
                 go.putExtras(b);
                 startActivity(go);
+                dialog.hide();
 
             }
         };
@@ -296,7 +287,7 @@ public class MapsActivity extends FragmentActivity {
         ParseUser.logOut();
 
         // go to welcome activity
-        Intent go = new Intent(this, Welcome.class);
+        Intent go = new Intent(this, WelcomeActivity.class);
         startActivity(go);
         finish();
     }
@@ -349,15 +340,5 @@ public class MapsActivity extends FragmentActivity {
             window.setStatusBarColor(Color.argb((int) (0.2 * 255.0f), 0, 0, 0));
         }
     }
-    public class PushBroadcastReceiver extends ParsePushBroadcastReceiver {
 
-        @Override
-        protected Notification getNotification(Context context, Intent intent) {
-            Notification notification = super.getNotification(context, intent);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                notification.color = context.getResources().getColor(R.color.ColorPrimary);
-            }
-            return notification;
-        }
-    }
 }
