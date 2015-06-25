@@ -1,5 +1,6 @@
 package nl.mprog.rutger.aight;
 
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -47,7 +48,9 @@ import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends FragmentActivity {
 
-    static int PUSH_SEARCH_DISTANCE = 3500;
+    static float PUSH_SEARCH_DISTANCE = 3500;
+
+    static  int MAX_AIGHTS = 100;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -123,8 +126,13 @@ public class MapsActivity extends FragmentActivity {
         final Date currentTime = new Date();
         final long currentTimeSecs = currentTime.getTime();
 
+        ParseUser user = ParseUser.getCurrentUser();
+        ParseGeoPoint currentLocation = user.getParseGeoPoint("userLocation");
         // get list of events from parse
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
+        query.orderByDescending("createdAt");
+        query.whereWithinKilometers("location", currentLocation, PUSH_SEARCH_DISTANCE / 1000);
+        query.setLimit(MAX_AIGHTS);
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> list, ParseException e) {
                 // get all markers off of map before creating current ones
@@ -149,7 +157,7 @@ public class MapsActivity extends FragmentActivity {
                     int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
 
                     // only add active events
-                    if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
+                    if (eventAgeInSecs <= 5400 && eventAgeInSecs < duration * 60) {
                         putMarker(point, description, duration, activityUser, eventAgeInSecs);
                     }
                 }

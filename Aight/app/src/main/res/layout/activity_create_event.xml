@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="26sp"
         android:progressTint="@color/washed_orange"
-        android:progress="6"
+        android:progress="0"
         android:max="18"
         android:backgroundTint="@color/Green"
         android:backgroundTintMode="src_over"

@@ -4,11 +4,8 @@ Parse.Cloud.afterSave('Event', function (request) {
 
   Parse.Cloud.useMasterKey();
 
-  
-  var eventUser = request.object.get('username');
-  var currentUser = request.user.get('username');
+  var ninetyMinFromNow = new Date().getTime() + 5400;
 
-  console.log(eventUser == currentUser);
 
   var userQuery = new Parse.Query('User');
   userQuery.withinKilometers('userLocation', request.object.get('location'), 3.5);
@@ -17,12 +14,15 @@ Parse.Cloud.afterSave('Event', function (request) {
   var query = new Parse.Query(Parse.Installation);
   query.matchesQuery("user", userQuery);
 
-
+  var eventUser = request.object.get('username');
+  var currentUser = request.user.get('username');
 
 Parse.Push.send({
-  where: query, // Set installation query
+  where: query,
+  expiration_interval: ninetyMinFromNow,
   data: {
-      alert: request.object.get('username') + " aights within " + request.object.get('') 
+      title: request.object.get('username'),
+      alert: request.object.get('description') 
     }
   }, 
   {
@@ -30,7 +30,7 @@ Parse.Push.send({
    // Push was successful
    },
    error: function(error) {
-   // Handle error
+      throw "Error " + error.code + " : " + error.message;
    }
   });
   // query.find({
