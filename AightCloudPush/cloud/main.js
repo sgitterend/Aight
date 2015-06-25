@@ -4,7 +4,8 @@ Parse.Cloud.afterSave('Event', function (request) {
 
   Parse.Cloud.useMasterKey();
 
-  var ninetyMinFromNow = new Date().getTime() + 5400;
+  var ninetyMinFromNow = new Date() + 5400;
+  var now = new Date();
 
 
   var userQuery = new Parse.Query('User');
@@ -17,9 +18,11 @@ Parse.Cloud.afterSave('Event', function (request) {
   var eventUser = request.object.get('username');
   var currentUser = request.user.get('username');
 
+  console.log(ninetyMinFromNow);
+  console.log(now);
 Parse.Push.send({
   where: query,
-  expiration_interval: ninetyMinFromNow,
+  // expiration_interval: ninetyMinFromNow,
   data: {
       title: request.object.get('username'),
       alert: request.object.get('description') 
