@@ -3,9 +3,7 @@ package nl.mprog.rutger.aight;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -16,6 +14,7 @@ import android.view.View;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -33,7 +32,6 @@ import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
-import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -49,6 +47,8 @@ import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends FragmentActivity {
 
+    static int PUSH_SEARCH_DISTANCE = 3500;
+
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     @Override
@@ -62,7 +62,6 @@ public class MapsActivity extends FragmentActivity {
 
         // build map
         setUpMapIfNeeded();
-
     }
 
     @Override
@@ -71,7 +70,6 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
         placeMarkers.run();
     }
-
 
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
@@ -86,8 +84,6 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-
-
     private void setUpMap() {
 
         // set standard map UI settings
@@ -96,29 +92,16 @@ public class MapsActivity extends FragmentActivity {
         mMap.getUiSettings().setCompassEnabled(false);
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
-
         // go to current location on the map
         goToMyLocation();
 
+        // put buttons on the map
         createFABS();
+
         // refresh markers every 15 seconds
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(placeMarkers, 0, 15, TimeUnit.SECONDS);
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -131,101 +114,102 @@ public class MapsActivity extends FragmentActivity {
 
             // update user location
             storeCurrentLocation();
-
         }
     };
 
+    public void parseQuery() {
 
+        // get current time
+        final Date currentTime = new Date();
+        final long currentTimeSecs = currentTime.getTime();
 
-public void parseQuery() {
+        // get list of events from parse
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> list, ParseException e) {
+                // get all markers off of map before creating current ones
+                mMap.clear();
 
-    // get list of events from parse
-    ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+                int count = list.size();
+                for (int i = 0; i < count; i++) {
+                    // get event activity
+                    ParseObject activity = list.get(i);
 
-    // get current time
-    final Date currentTime = new Date();
-    final long currentTimeSecs = currentTime.getTime();
+                    // get time of the event
+                    final Date eventTime = activity.getCreatedAt();
+                    long eventTimeSecs = eventTime.getTime();
 
+                    // get other data of event
+                    ParseGeoPoint point = activity.getParseGeoPoint("location");
+                    String description = activity.getString("description");
+                    Integer duration = activity.getInt("duration");
+                    String activityUser = activity.getString("username");
 
-    query.findInBackground(new FindCallback<ParseObject>() {
-        public void done(List<ParseObject> list, ParseException e) {
-            // get all markers off of map before creating current ones
-            mMap.clear();
+                    // calculate time since activity was created
+                    int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
 
-            int count = list.size();
-            for (int i = 0; i < count; i++) {
-                // get event activity
-                ParseObject activity = list.get(i);
-
-                // get time of the event
-                final Date eventTime = activity.getCreatedAt();
-                long eventTimeSecs = eventTime.getTime();
-
-                // get other data of event
-                ParseGeoPoint point = activity.getParseGeoPoint("location");
-                String description = activity.getString("description");
-                Integer duration = activity.getInt("duration");
-                String user = activity.getString("username");
-                int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
-
-                // only add active events
-                if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
-                    putMarker(point, description, duration, user, eventAgeInSecs, currentTimeSecs, eventTimeSecs);
+                    // only add active events
+                    if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
+                        putMarker(point, description, duration, activityUser, eventAgeInSecs);
+                    }
                 }
             }
-        }
-    });
-}
+        });
+    }
 
-
-
-
-
-
+    // add markers to the map and calculate distance
     public void putMarker(final ParseGeoPoint point, String description, Integer duration, final String user,
-                          final int eventAgeInSecs, final long eventTimeSecs, final long currentTimeSecs) {
+                          final int eventAgeInSecs) {
+
+        // add event marker
         mMap.addMarker(new MarkerOptions().position(new LatLng(point.getLatitude(),
                 point.getLongitude())).title((String) user)
                 .snippet(description + getString(R.string.time_left, (duration - eventAgeInSecs / 60)))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
 
-
         // compare location of user and of activity to get distance
-        final ParseGeoPoint pointLocation = point;
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
 
-
                 // calculate distance between user and activity
-                double latDifference = Math.pow((location.getLatitude() - pointLocation.getLatitude()), 2);
-                double longDifference = Math.pow((location.getLongitude() - pointLocation.getLongitude()),2);
+                double latDifference = Math.pow((location.getLatitude() - point.getLatitude()), 2);
+                double longDifference = Math.pow((location.getLongitude() - point.getLongitude()),2);
                 double distance = Math.pow((latDifference + longDifference), 0.5);
 
-                onDistanceKnown(distance, eventAgeInSecs, user);
+                // notify user when an event is near
+                if (distance < PUSH_SEARCH_DISTANCE) {
+                    onDistanceKnown(distance, eventAgeInSecs, user);
+                }
             }
         };
         MyLocation myLocation = new MyLocation();
         myLocation.getLocation(this, locationResult);
     }
 
-
-    public void onDistanceKnown(double distance, int eventAgeInSecs, String user) {
+    // notify user when a new activity is created
+    public void onDistanceKnown(double distance, int eventAgeInSecs, String activityUser) {
 
         // Don't be overly specific
-        int distanceUnprecise = (int) (distance + 30);
+        int distanceUnprecise = 0;
+        if (distance < 30) {
+            distanceUnprecise = (int) (distance + 30);
+        }
+        else {
+            // round off to 10 meter
+            distanceUnprecise = (int) ((distance + 5) / 10) * 10;
+        }
 
         // look for notifications
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser == null) {
             return;
         }
-
         // only notify for events that are within appx 3km, are new and mady by other user
-        if (distanceUnprecise < 3050 && eventAgeInSecs < 15 && !user.equals(currentUser.getUsername())) {
+        if (eventAgeInSecs < 15 && !activityUser.equals(currentUser.getUsername())) {
             ParsePush push = new ParsePush();
             push.setChannel("all");
-            push.setMessage(user + " has created an event within " + distanceUnprecise + " meters ");
+            push.setMessage(activityUser + " has created an event within " + distanceUnprecise + " meters ");
             push.sendInBackground(new SendCallback() {
                 @Override
                 public void done(ParseException e) {
@@ -237,24 +221,52 @@ public void parseQuery() {
     }
 
 
-
-
     // Allow user to create an event
     public void goCreateEvent(View view) {
 
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        double latitude = currentUser.getDouble("lastKnownLat");
-        double longitude = currentUser.getDouble("lastKnownLong");
+        // keep the users patience
+        final ProgressDialog dialog = new ProgressDialog(this);
+        dialog.setMessage(getString(R.string.getting_location));
+        dialog.show();
 
-        // Go to CreateEventActivity activity
-        Intent go = new Intent(MapsActivity.this, CreateEventActivity.class);
-        Bundle b = new Bundle();
-        b.putDouble("latitude", latitude);
-        b.putDouble("longitude", longitude);
+        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+            @Override
+            public void gotLocation(Location location) {
 
-        go.putExtras(b);
-        startActivity(go);
+                // check if a user is logged in
+                ParseUser user = ParseUser.getCurrentUser();
+                if (user == null) {
+                    return;
+                }
+                ParseGeoPoint userLocation = new ParseGeoPoint(location.getLatitude(),
+                        location.getLongitude());
+                user.put("userLocation", userLocation);
+                user.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Log.d(">>>>", "save location error" + e);
+                    }
+                });
+
+                // Go to CreateEventActivity activity
+                Intent go = new Intent(MapsActivity.this, CreateEventActivity.class);
+                startActivity(go);
+                dialog.hide();
+            }
+        };
+        MyLocation myLocation = new MyLocation();
+        myLocation.getLocation(this, locationResult);
+
+        // prompt user to turn location on if not found
+        if (!myLocation.gps_enabled && !myLocation.network_enabled) {
+
+            // when gps was turned off, do not pretend to be searching
+            if (dialog.isShowing()) {
+                dialog.hide();
+            }
+            promptGPS(this);
+        }
     }
 
     // get location and zoom in to it
@@ -288,9 +300,9 @@ public void parseQuery() {
                 if (user == null) {
                     return;
                 }
-
-                user.put("lastKnownLat", location.getLatitude());
-                user.put("lastKnownLong", location.getLongitude());
+                ParseGeoPoint userLocation = new ParseGeoPoint(location.getLatitude(),
+                        location.getLongitude());
+                user.put("userLocation", userLocation);
                 user.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
@@ -301,23 +313,6 @@ public void parseQuery() {
         };
         MyLocation myLocation = new MyLocation();
         myLocation.getLocation(this, locationResult);
-
-        // prompt user to turn location on if not found
-        if (!myLocation.gps_enabled && !myLocation.network_enabled) {
-            promptGPS(this);
-
-        }
-    }
-
-    // allow a user to log out
-    private void logOut(View view) {
-        ParseUser.logOut();
-
-        // go to welcome activity
-        Intent go = new Intent(this, WelcomeActivity.class);
-        startActivity(go);
-        view.invalidate();
-        finish();
     }
 
     // prompts user to turn location on
@@ -345,18 +340,46 @@ public void parseQuery() {
 
     // create floating action buttons for current location and logout
     public void createFABS() {
+        invalidateFABS();
+
         // make a fab button to locate current position
         ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
         fabLocate.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {goToMyLocation();}
+            public void onClick(View v) {
+                goToMyLocation();
+            }
         });
 
         // make a fab button to log out
         Button fablogOut = (Button) findViewById(R.id.fablogout);
         fablogOut.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {logOut(v);}
+            public void onClick(View v) {
+                logOut(v);
+            }
         });
     }
+
+    // invalidate fab buttons when user logs out
+    public void invalidateFABS() {
+
+        ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
+        fabLocate.invalidate();
+
+        Button fablogOut = (Button) findViewById(R.id.fablogout);
+        fablogOut.invalidate();
+    }
+
+    // allow a user to log out
+    private void logOut(View view) {
+        ParseUser.logOut();
+
+        // go to welcome activity
+        Intent go = new Intent(this, WelcomeActivity.class);
+        startActivity(go);
+        view.invalidate();
+        finish();
+    }
+
 
     // make status bar transparent on android 5.0 and higher
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -22,9 +23,6 @@ public class CreateEventActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
-
-
-
 
         // create slider and textview for intended activity length
         SeekBar timeSlider = (SeekBar) findViewById(R.id.timeslider);
@@ -81,14 +79,12 @@ public class CreateEventActivity extends Activity {
 
     public void sendEventToParse(View view) {
 
-        Bundle b = getIntent().getExtras();
-        final double latitude = b.getDouble("latitude");
-        final double longitude = b.getDouble("longitude");
-
-        ParseObject placeObject = new ParseObject("Location");
-
-        // store LatLng as parsegeopoint
-        ParseGeoPoint point = new ParseGeoPoint(latitude, longitude);
+        // check if a user is logged in
+        ParseUser user = ParseUser.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        ParseGeoPoint point = user.getParseGeoPoint("userLocation");
 
         // get user description
         EditText editText = (EditText) findViewById(R.id.event_description);
@@ -105,8 +101,8 @@ public class CreateEventActivity extends Activity {
         else {
             duration = 1;
         }
-
         // store event variables
+        ParseObject placeObject = new ParseObject("Location");
         placeObject.put("duration", duration);
         placeObject.put("description", message);
         placeObject.put("location", point);
@@ -114,8 +110,8 @@ public class CreateEventActivity extends Activity {
         // store username along with activity
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            String user = currentUser.getUsername();
-            placeObject.put("username", user);
+            String userName = currentUser.getUsername();
+            placeObject.put("username", userName);
         } else {
             finish();
         }
