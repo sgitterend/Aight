@@ -124,7 +124,7 @@ public class MapsActivity extends FragmentActivity {
         final long currentTimeSecs = currentTime.getTime();
 
         // get list of events from parse
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> list, ParseException e) {
                 // get all markers off of map before creating current ones
@@ -199,74 +199,13 @@ public class MapsActivity extends FragmentActivity {
             // round off to 10 meter
             distanceUnprecise = (int) ((distance + 5) / 10) * 10;
         }
-
-        // look for notifications
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser == null) {
-            return;
-        }
-        // only notify for events that are within appx 3km, are new and mady by other user
-        if (eventAgeInSecs < 15 && !activityUser.equals(currentUser.getUsername())) {
-            ParsePush push = new ParsePush();
-            push.setChannel("all");
-            push.setMessage(activityUser + " has created an event within " + distanceUnprecise + " meters ");
-            push.sendInBackground(new SendCallback() {
-                @Override
-                public void done(ParseException e) {
-                    Log.d(">>>", "notification error" + e);
-                }
-            });
-
-        }
     }
 
 
     // Allow user to create an event
     public void goCreateEvent(View view) {
-
-
-        // keep the users patience
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage(getString(R.string.getting_location));
-        dialog.show();
-
-        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-            @Override
-            public void gotLocation(Location location) {
-
-                // check if a user is logged in
-                ParseUser user = ParseUser.getCurrentUser();
-                if (user == null) {
-                    return;
-                }
-                ParseGeoPoint userLocation = new ParseGeoPoint(location.getLatitude(),
-                        location.getLongitude());
-                user.put("userLocation", userLocation);
-                user.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
-                        Log.d(">>>>", "save location error" + e);
-                    }
-                });
-
-                // Go to CreateEventActivity activity
-                Intent go = new Intent(MapsActivity.this, CreateEventActivity.class);
-                startActivity(go);
-                dialog.hide();
-            }
-        };
-        MyLocation myLocation = new MyLocation();
-        myLocation.getLocation(this, locationResult);
-
-        // prompt user to turn location on if not found
-        if (!myLocation.gps_enabled && !myLocation.network_enabled) {
-
-            // when gps was turned off, do not pretend to be searching
-            if (dialog.isShowing()) {
-                dialog.hide();
-            }
-            promptGPS(this);
-        }
+        Intent go = new Intent(MapsActivity.this, CreateEventActivity.class);
+        startActivity(go);
     }
 
     // get location and zoom in to it
@@ -384,7 +323,7 @@ public class MapsActivity extends FragmentActivity {
     // make status bar transparent on android 5.0 and higher
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     final void setColor(Window window) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);

@@ -27,19 +27,16 @@ public class LoggedInCheck extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ParsePush.subscribeInBackground("", new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
-                } else {
-                    Log.e("com.parse.push", "failed to subscribe for push", e);
-                }
-            }
-        });
+        // add user to installation for notifications
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+            installation.put("user", currentUser);
+            installation.saveInBackground();
+        }
 
         // Check if there is current user info
-        if (ParseUser.getCurrentUser() != null) {
+        if (currentUser != null) {
             // Start an intent for the logged in activity
             startActivity(new Intent(this, MapsActivity.class));
         } else {

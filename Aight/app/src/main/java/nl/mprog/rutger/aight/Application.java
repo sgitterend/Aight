@@ -31,9 +31,7 @@ public class Application extends android.app.Application {
         Parse.initialize(this, "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8", "zXSgVFnOxCpRktMpvdTjGQ5YKObO69qqj9bFdNNm");
         ParseInstallation.getCurrentInstallation().saveInBackground();
 
-
-
-        ParsePush.subscribeInBackground("", new SaveCallback() {
+        ParsePush.subscribeInBackground("all", new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
@@ -43,8 +41,6 @@ public class Application extends android.app.Application {
                 }
             }
         });
-
-        ParsePush.subscribeInBackground("all");
 
     }
 }

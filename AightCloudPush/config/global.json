@@ -1,0 +1,14 @@
+{
+  "global": {
+    "parseVersion": "1.4.2"
+  },
+  "applications": {
+    "Aight": {
+      "applicationId": "41OkLo6j1hdKZsx1n1iGfvFtwRALWLerZ45glOZ8",
+      "masterKey": "o4nsciTwPMYDbemlYzVDvO3gU31njTAkX8wRshKj"
+    },
+    "_default": {
+      "link": "Aight"
+    }
+  }
+}

@@ -79,13 +79,6 @@ public class CreateEventActivity extends Activity {
 
     public void sendEventToParse(View view) {
 
-        // check if a user is logged in
-        ParseUser user = ParseUser.getCurrentUser();
-        if (user == null) {
-            return;
-        }
-        ParseGeoPoint point = user.getParseGeoPoint("userLocation");
-
         // get user description
         EditText editText = (EditText) findViewById(R.id.event_description);
         String message = editText.getText().toString();
@@ -101,31 +94,34 @@ public class CreateEventActivity extends Activity {
         else {
             duration = 1;
         }
+
         // store event variables
-        ParseObject placeObject = new ParseObject("Location");
+        ParseObject placeObject = new ParseObject("Event");
+
+        ParseUser user = ParseUser.getCurrentUser();
+        if (user == null) {
+            return;
+        }
+
+        // store data in parse object
+        ParseGeoPoint point = user.getParseGeoPoint("userLocation");
+        String userName = user.getUsername();
+        placeObject.put("username", userName);
         placeObject.put("duration", duration);
         placeObject.put("description", message);
         placeObject.put("location", point);
 
-        // store username along with activity
-        ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser != null) {
-            String userName = currentUser.getUsername();
-            placeObject.put("username", userName);
-        } else {
-            finish();
-        }
-
-        // go back to MapsActivity when saving is complete
+        // save object to parse
         placeObject.saveInBackground(new SaveCallback() {
             public void done(ParseException e) {
                 if (e == null) {
-                    finish();
+                    // things are going fine
                 } else {
                     done(e);
                 }
             }
         });
+        finish();
     }
 
 }
