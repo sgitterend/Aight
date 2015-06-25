@@ -69,6 +69,7 @@ public class MapsActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         setUpMapIfNeeded();
+        placeMarkers.run();
     }
 
 
@@ -125,52 +126,56 @@ public class MapsActivity extends FragmentActivity {
     Runnable placeMarkers = new Runnable() {
         public void run() {
 
+            // look for current events
+            parseQuery();
 
+            // update user location
+            storeCurrentLocation();
 
-
-             // get list of events from parse
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-
-            // get current time
-            final Date currentTime = new Date();
-            final long currentTimeSecs = currentTime.getTime();
-
-
-            query.findInBackground(new FindCallback<ParseObject>() {
-                public void done(List<ParseObject> list, ParseException e) {
-
-                    // get all markers off of map before creating current ones
-                    mMap.clear();
-
-                    int count = list.size();
-                    for (int i = 0; i < count; i++) {
-                        // get event activity
-                        ParseObject activity = list.get(i);
-
-                        // get time of the event
-                        final Date eventTime = activity.getCreatedAt();
-                        long eventTimeSecs = eventTime.getTime();
-
-                        // get other data of event
-                        ParseGeoPoint point = activity.getParseGeoPoint("location");
-                        String description = activity.getString("description");
-                        Integer duration = activity.getInt("duration");
-                        String user = activity.getString("username");
-                        int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
-
-                        // only add active events
-                        if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
-                            putMarker(point, description, duration, user, eventAgeInSecs, currentTimeSecs, eventTimeSecs);
-                        }
-                    }
-                }
-            });
         }
     };
 
 
 
+public void parseQuery() {
 
+    // get list of events from parse
+    ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+
+    // get current time
+    final Date currentTime = new Date();
+    final long currentTimeSecs = currentTime.getTime();
+
+
+    query.findInBackground(new FindCallback<ParseObject>() {
+        public void done(List<ParseObject> list, ParseException e) {
+            // get all markers off of map before creating current ones
+            mMap.clear();
+
+            int count = list.size();
+            for (int i = 0; i < count; i++) {
+                // get event activity
+                ParseObject activity = list.get(i);
+
+                // get time of the event
+                final Date eventTime = activity.getCreatedAt();
+                long eventTimeSecs = eventTime.getTime();
+
+                // get other data of event
+                ParseGeoPoint point = activity.getParseGeoPoint("location");
+                String description = activity.getString("description");
+                Integer duration = activity.getInt("duration");
+                String user = activity.getString("username");
+                int eventAgeInSecs = (int) ((currentTimeSecs - eventTimeSecs) / 1000);
+
+                // only add active events
+                if (eventAgeInSecs <= 4200 && eventAgeInSecs < duration * 60) {
+                    putMarker(point, description, duration, user, eventAgeInSecs, currentTimeSecs, eventTimeSecs);
+                }
+            }
+        }
+    });
+}
 
 
 
@@ -191,6 +196,8 @@ public class MapsActivity extends FragmentActivity {
             @Override
             public void gotLocation(Location location) {
 
+
+                // calculate distance between user and activity
                 double latDifference = Math.pow((location.getLatitude() - pointLocation.getLatitude()), 2);
                 double longDifference = Math.pow((location.getLongitude() - pointLocation.getLongitude()),2);
                 double distance = Math.pow((latDifference + longDifference), 0.5);
@@ -222,7 +229,7 @@ public class MapsActivity extends FragmentActivity {
             push.sendInBackground(new SendCallback() {
                 @Override
                 public void done(ParseException e) {
-                    Log.d(">>>", "" + e);
+                    Log.d(">>>", "notification error" + e);
                 }
             });
 
@@ -235,33 +242,19 @@ public class MapsActivity extends FragmentActivity {
     // Allow user to create an event
     public void goCreateEvent(View view) {
 
-        // keep the users patience
-        final ProgressDialog dialog = new ProgressDialog(this);
-        dialog.setMessage(getString(R.string.getting_location));
-        dialog.show();
 
-        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-            @Override
-            public void gotLocation(Location location) {
-                Intent go = new Intent(MapsActivity.this, CreateEventActivity.class);
-                Bundle b = new Bundle();
-                b.putDouble("latitude", location.getLatitude());
-                b.putDouble("longitude", location.getLongitude());
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        double latitude = currentUser.getDouble("lastKnownLat");
+        double longitude = currentUser.getDouble("lastKnownLong");
 
-                // Go to CreateEventActivity activity
-                go.putExtras(b);
-                startActivity(go);
-                dialog.hide();
+        // Go to CreateEventActivity activity
+        Intent go = new Intent(MapsActivity.this, CreateEventActivity.class);
+        Bundle b = new Bundle();
+        b.putDouble("latitude", latitude);
+        b.putDouble("longitude", longitude);
 
-            }
-        };
-        MyLocation myLocation = new MyLocation();
-        myLocation.getLocation(this, locationResult);
-
-        // prompt user to turn location on if not found
-        if (!myLocation.gps_enabled && !myLocation.network_enabled) {
-            promptGPS(this);
-        }
+        go.putExtras(b);
+        startActivity(go);
     }
 
     // get location and zoom in to it
@@ -270,7 +263,6 @@ public class MapsActivity extends FragmentActivity {
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
-
                 // zoom map to current location
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 15);
@@ -286,7 +278,36 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
+    private void storeCurrentLocation() {
+        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+            @Override
+            public void gotLocation(Location location) {
 
+                // Update last known user location
+                ParseUser user = ParseUser.getCurrentUser();
+                if (user == null) {
+                    return;
+                }
+
+                user.put("lastKnownLat", location.getLatitude());
+                user.put("lastKnownLong", location.getLongitude());
+                user.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        Log.d(">>>>", "save location error" + e);
+                    }
+                });
+            }
+        };
+        MyLocation myLocation = new MyLocation();
+        myLocation.getLocation(this, locationResult);
+
+        // prompt user to turn location on if not found
+        if (!myLocation.gps_enabled && !myLocation.network_enabled) {
+            promptGPS(this);
+
+        }
+    }
 
     // allow a user to log out
     private void logOut(View view) {
@@ -295,6 +316,7 @@ public class MapsActivity extends FragmentActivity {
         // go to welcome activity
         Intent go = new Intent(this, WelcomeActivity.class);
         startActivity(go);
+        view.invalidate();
         finish();
     }
 

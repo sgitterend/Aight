@@ -29,10 +29,10 @@ public class CreateEventActivity extends Activity {
         // create slider and textview for intended activity length
         SeekBar timeSlider = (SeekBar) findViewById(R.id.timeslider);
         final TextView currentTime = (TextView) findViewById(R.id.chosentime);
-        final int stepfive = 5;
+        final int fiveMin = 5;
 
         // show the standard time (min time = 1 min, steps of 5 min)
-        currentTime.setText(timeSlider.getProgress() * stepfive + " minutes");
+        currentTime.setText(timeSlider.getProgress() * fiveMin + " minutes");
 
         timeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -40,7 +40,7 @@ public class CreateEventActivity extends Activity {
                 if (progress == 0) {
                     currentTime.setText("1 minute");
                 } else {
-                    currentTime.setText(String.valueOf(progress * stepfive) + " minutes");
+                    currentTime.setText(String.valueOf(progress * fiveMin) + " minutes");
                 }
             }
 
@@ -59,7 +59,7 @@ public class CreateEventActivity extends Activity {
         // Make sure user input is limited to 140 chars
         final TextView charCount = (TextView) findViewById(R.id.charCount);
         final EditText eventDescription = (EditText) findViewById(R.id.event_description);
-        final int maxChars = 40;
+        final int maxChars = 30;
 
         charCount.setText(Integer.toString(maxChars));
 
@@ -72,13 +72,10 @@ public class CreateEventActivity extends Activity {
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void afterTextChanged(Editable s) {
-
-            }
+            public void afterTextChanged(Editable s) {}
         });
     }
 
@@ -87,8 +84,11 @@ public class CreateEventActivity extends Activity {
         Bundle b = getIntent().getExtras();
         final double latitude = b.getDouble("latitude");
         final double longitude = b.getDouble("longitude");
-        ParseGeoPoint point = new ParseGeoPoint(latitude, longitude);
+
         ParseObject placeObject = new ParseObject("Location");
+
+        // store LatLng as parsegeopoint
+        ParseGeoPoint point = new ParseGeoPoint(latitude, longitude);
 
         // get user description
         EditText editText = (EditText) findViewById(R.id.event_description);
@@ -96,20 +96,22 @@ public class CreateEventActivity extends Activity {
 
         // get user duration
         SeekBar timeSlider = (SeekBar) findViewById(R.id.timeslider);
-        int Duration = timeSlider.getProgress();
+        int duration = timeSlider.getProgress();
 
         // translate slider value to actual time
-        if (Duration > 0) {
-            Duration = Duration * 5;
+        if (duration > 0) {
+            duration = duration * 5;
         }
         else {
-            Duration = 1;
+            duration = 1;
         }
 
-        // send to parse
-        placeObject.put("duration", Duration);
+        // store event variables
+        placeObject.put("duration", duration);
         placeObject.put("description", message);
         placeObject.put("location", point);
+
+        // store username along with activity
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
             String user = currentUser.getUsername();
@@ -118,7 +120,7 @@ public class CreateEventActivity extends Activity {
             finish();
         }
 
-        // only go back to MapsActivity if saving is complete
+        // go back to MapsActivity when saving is complete
         placeObject.saveInBackground(new SaveCallback() {
             public void done(ParseException e) {
                 if (e == null) {

@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/description_hint"
         android:textColorHint="@color/washed_orange"
-        android:maxLength="40"
+        android:maxLength="30"
         android:backgroundTint="@color/washed_orange" />
 
 

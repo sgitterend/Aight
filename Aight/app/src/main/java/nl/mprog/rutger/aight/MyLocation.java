@@ -15,6 +15,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class MyLocation {
     Timer timer1;
     LocationManager lm;
@@ -122,6 +124,4 @@ public class MyLocation {
     public static abstract class LocationResult {
         public abstract void gotLocation(Location location);
     }
-
-
-        }
+}
