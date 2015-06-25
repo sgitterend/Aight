@@ -19,6 +19,8 @@ import com.parse.SaveCallback;
 
 public class CreateEventActivity extends Activity {
 
+    final int MAX_CHARS = 40;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,16 +59,16 @@ public class CreateEventActivity extends Activity {
         // Make sure user input is limited to 140 chars
         final TextView charCount = (TextView) findViewById(R.id.charCount);
         final EditText eventDescription = (EditText) findViewById(R.id.event_description);
-        final int maxChars = 30;
 
-        charCount.setText(Integer.toString(maxChars));
+
+        charCount.setText(Integer.toString(MAX_CHARS));
 
         eventDescription.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
 
                 // display live changes of number of chars
-                charCount.setText(Integer.toString(maxChars - start - count));
+                charCount.setText(Integer.toString(MAX_CHARS - start - count));
             }
 
             @Override
