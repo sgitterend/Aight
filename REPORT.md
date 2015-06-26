@@ -34,7 +34,23 @@ Het fundament van de app zijn de zes activities en de twee classes. Daarbij is g
 - **Application.java** Bij het opstarten, hervatten en in de achtergrond draaien van de app wordt de onCreate method van de Application class aangeroepen. Hierin wordt een verbinding met Parse geinitialiseerd, waarmee wordt voorkomen dat calls aan Parse in andere classes null-objecten worden.
 - **MyLocation.java** De MyLocation is een class die kijkt of er een locatieprovider beschikbaar is, welke het beste is (netwerk vs gps bepaalde locatie). Wordt o.a. gebruikt om elke 15 sec de gebruikerlocatie op parse te updaten.
 
-#### Methods
+#### Database
+In Parse sla ik een aight op als "Event" object. Hierin staat opgeslagen wanneer deze is gemaakt "createdAt", hoe lang het duurt "duration", welke user hem heeft gemaakt "username", een parsegeopoint "location" met daarin de latitude en longitude van de aight, en nog een aantal kolommen die parse automatisch aanmaakt.<br>
+Users staan in een User object. Hierin staat het wachtwoord gehashed opgeslagen, de username, de laatst opgeslagen locatie van de user als parsegeopoint en nog een aantal kolommen die parse automatisch aanmaakt.
+
+Er staat een pointer naar het Userobject van de laatst ingelogd user op een installation. De installations worden aangeroepen in cloudcode om te kijken naar welke apparaten een push-notificatie verzonden moet worden.
+
+BIj het aanmaken van de markers wordt een parse functie aangeroepen waarmee de latitude en longitude van twee parsegeopoints wordt vergeleken en er een afstand uitkomt. De query staat afgesteld om binnen een bepaalde afstand markers te zoeken (60km), en binnen een kleinere straal notificaties te sturen (3.5km)
+
+#### Desicions
+
+##### UI
+Ik heb de UI zo eenvoudig en intuïtief mogelijk gemaakt. Daarom heb ik de huidige Google maps geprobeerd te imiteren, maar in plaats van een knop om routes te verkrijgen zit er een knop om aights te creëeren.
+
+##### Notifications
+De notificaties zijn uiteindelijk helemaal via cloud-code geïmplementeerd. Voordeel hiervan is tegelijkertijd ook het nadeel: ongeacht of iemand de app draait, ontvangt deze een notificatie als er een aight in de buurt wordt gemaakt.
+
+
 
 ###  Challenges
 Challenges is een groot onderwerp. Ik had al een half jaar niet meer naar een java bestand gekeken (ik deed app studio eind 2014) en toen was daar Android Studio. Qua functionaliteit en layout vergelijkbaar met Eclipse, maar niet meteen makkelijk om mee te werken. Dinsdag 9 juni (week 2)  gaf ik de hoop op dat mijn eerste activity vertoond ging worden, en ik bouwde de app opnieuw. Ik had nog programma geschreven dat met een externe database communiceerde, dus met Parse aan de slag gaan was een uitdaging. Gelukkig bleek dat parse hele toegankelijke functies heeft om objecten weg te schrijven en op te halen, en kon medestudent Joram mij hiermee helpen.
