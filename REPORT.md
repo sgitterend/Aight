@@ -19,7 +19,20 @@ Aight is dus echt bedoeld om mensen op korte termijn dingen samen te laten zien/
 De volledige set aan mogelijke toepassingen is moeilijk te overzien en zal door de gebruikers moeten worden uitgediept.
 
 ### Design
-Clearly describe the technical design: how does your code map to the functionality?
+
+Het fundament van de app zijn de zes activities en de twee classes. Daarbij is gebruik gemaakt van Parse voor alle gebruiker-gerelateerde objecten zoals "Events" en "User". Voor het renderen van de kaart en de daarbij behorende objecten is de Google Maps Android API v2 gebruikt.
+
+#### Activities
+- **CreateEventActivity.java** CreateEventActivity is een activity ofwel scherm. Hierin kan de gebruiker zijn aight omschrijven, een duur instellen en dit opsturen naar parse. De aight-knop - de naam zegt het al - waarmee de aight wordt gemaakt, brengt de gebruiker naar de MapsActivity
+- **LogInActivity.java** LogInActivity is een activity waarin een bestaande gebruiker een username en password kan invullen, dit wordt naar parse gestuurd en als de tokens correct zijn wordt de MapsActivity geladen.
+- **LoggedInCheck.java** LoggedInCheck wordt door de launcher gestart, checkt of een gebruiker ingelogd is en verwijst derhalve door naar WelcomeActivity (niet -) of Mapsactivity (wel ingelogd).
+- **MapsActivity.jav** MapsActivity is de centrale activity van de app. Periodiek (elke 15 sec) worden de markers waarmee de aights op de kaart staan aangegeven ververst, en wordt de huidige locatie van de gebruiker geupdatet op Parse.
+- **SignUpActivity.java** SignUpActivity is zeer vergelijkbaar met loginactivity, maar de gebruiker moet het wachtwoord bevestigen door het tweemaal te typen. De nieuwe gebruiker wordt opgeslagen als User-object op Parse.
+- **WelcomeActivity.java** Eenvoudige activity die de gebruiker twee knoppen presenteert: log in en sign up. Wordt aangeroepen als LoggedInCheck geen actieve gebruiker vindt.
+
+#### Classes
+- **Application.java** Bij het opstarten, hervatten en in de achtergrond draaien van de app wordt de onCreate method van de Application class aangeroepen. Hierin wordt een verbinding met Parse geinitialiseerd, waarmee wordt voorkomen dat calls aan Parse in andere classes null-objecten worden.
+- **MyLocation.java** De MyLocation is een class die kijkt of er een locatieprovider beschikbaar is, welke het beste is (netwerk vs gps bepaalde locatie). Wordt o.a. gebruikt om elke 15 sec de gebruikerlocatie op parse te updaten.
 
 ###  Challenges
 Clearly describe challenges that your have met during development. Document all important changes that your have made with regard to your design document.
