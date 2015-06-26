@@ -14,3 +14,6 @@ So when you're not looking for specific people, but you just want to hang out? j
 ### External resources
 - [Parse](https://parse.com/)
 - [Google Maps Android API v2](https://developers.google.com/maps/documentation/android/start)
+
+
+Rutger van de Lagemaat, 2015
