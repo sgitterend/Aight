@@ -35,6 +35,9 @@ Het fundament van de app zijn de zes activities en de twee classes. Daarbij is g
 - **MyLocation.java** De MyLocation is een class die kijkt of er een locatieprovider beschikbaar is, welke het beste is (netwerk vs gps bepaalde locatie). Wordt o.a. gebruikt om elke 15 sec de gebruikerlocatie op parse te updaten.
 
 ###  Challenges
+Challenges is een groot onderwerp. Ik had al een half jaar niet meer naar een java bestand gekeken (ik deed app studio eind 2014) en toen was daar Android Studio. Qua functionaliteit en layout vergelijkbaar met Eclipse, maar niet meteen makkelijk om mee te werken. Dinsdag 9 juni (week 2)  gaf ik de hoop op dat mijn eerste activity vertoond ging worden, en ik bouwde de app opnieuw. Ik had nog programma geschreven dat met een externe database communiceerde, dus met Parse aan de slag gaan was een uitdaging. Gelukkig bleek dat parse hele toegankelijke functies heeft om objecten weg te schrijven en op te halen, en kon medestudent Joram mij hiermee helpen.
+
+
 Clearly describe challenges that your have met during development. Document all important changes that your have made with regard to your design document.
 Try to defend these decisions by writing a small argument. Why was it good to do it different than you thought before? Are there trade-offs?
 
@@ -44,4 +47,8 @@ Make sure the document is complete and reflects the final state of the applicati
 
 
 
-
+### Sources
+- Joram's brein
+- [http://stackoverflow.com/questions/3145089/what-is-the-simplest-and-most-robust-way-to-get-the-users-current-location-in-a/3145655#3145655](Stackoverflow et al.)
+ - [https://parse.com/tutorials/anywall-android](AnyWall Parse tutorial)
+ - [https://developers.google.com/maps/documentation/android/start](Google Maps Android API v2)
