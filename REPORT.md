@@ -34,6 +34,8 @@ Het fundament van de app zijn de zes activities en de twee classes. Daarbij is g
 - **Application.java** Bij het opstarten, hervatten en in de achtergrond draaien van de app wordt de onCreate method van de Application class aangeroepen. Hierin wordt een verbinding met Parse geinitialiseerd, waarmee wordt voorkomen dat calls aan Parse in andere classes null-objecten worden.
 - **MyLocation.java** De MyLocation is een class die kijkt of er een locatieprovider beschikbaar is, welke het beste is (netwerk vs gps bepaalde locatie). Wordt o.a. gebruikt om elke 15 sec de gebruikerlocatie op parse te updaten.
 
+#### Methods
+
 ###  Challenges
 Challenges is een groot onderwerp. Ik had al een half jaar niet meer naar een java bestand gekeken (ik deed app studio eind 2014) en toen was daar Android Studio. Qua functionaliteit en layout vergelijkbaar met Eclipse, maar niet meteen makkelijk om mee te werken. Dinsdag 9 juni (week 2)  gaf ik de hoop op dat mijn eerste activity vertoond ging worden, en ik bouwde de app opnieuw. Ik had nog programma geschreven dat met een externe database communiceerde, dus met Parse aan de slag gaan was een uitdaging. Gelukkig bleek dat parse hele toegankelijke functies heeft om objecten weg te schrijven en op te halen, en kon medestudent Joram mij hiermee helpen.
 
@@ -43,8 +45,6 @@ Voor het eenvoudig vergelijken van 2 momenten (createdAt van een aight met huidi
 Notificaties implementeren had ik in eerste instantie gedaan met een locale aanvraag. Nadeel hiervan was dat een gebruiker de app aan moest hebben staan om deze te ontvangen. Toen ik ben overgeschakeld op cloud-code was een groot deel van mijn code in de MapsActivity overbodig geworden, terwijl ik hier lang aan had gezeten.
 Het mooie van cloud-code is dat zodra bij parse een aight wordt weggeschreven, er vanuit parse wordt gekeken naar users in de buurt (binnen 3.5km) en deze een notificatie ontvangen.
 
-Clearly describe challenges that your have met during development. Document all important changes that your have made with regard to your design document.
-Try to defend these decisions by writing a small argument. Why was it good to do it different than you thought before? Are there trade-offs?
 
 ### Reflection
 De app werkt zonder bugs en heeft alle functionaliteit zoals voorgesteld in mijn MVP. Ik heb er veel aandacht aan besteed om de user interface zo eenvoudig mogelijk te houden en zo veel mogelijk processen op de achtergrond te laten plaatsvinden, waardoor het geduld van de gebruiker niet op de proef wordt gesteld. Daarnaast ben ik ook erg tevreden over de UI + layout en tot in hoeverre dit overeen komt met mijn proposal.
