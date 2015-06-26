@@ -53,7 +53,7 @@ Parse.Cloud.afterSave('Event', function (request) {
     expiration_time: ninetyMinFromNow,
     data: {
         title: request.object.get('username') + " just created a new Aight",
-        alert: "within 50 meters"
+        alert: request.object.get('description')
       }
     }, 
   {
