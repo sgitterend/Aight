@@ -37,7 +37,11 @@ Het fundament van de app zijn de zes activities en de twee classes. Daarbij is g
 ###  Challenges
 Challenges is een groot onderwerp. Ik had al een half jaar niet meer naar een java bestand gekeken (ik deed app studio eind 2014) en toen was daar Android Studio. Qua functionaliteit en layout vergelijkbaar met Eclipse, maar niet meteen makkelijk om mee te werken. Dinsdag 9 juni (week 2)  gaf ik de hoop op dat mijn eerste activity vertoond ging worden, en ik bouwde de app opnieuw. Ik had nog programma geschreven dat met een externe database communiceerde, dus met Parse aan de slag gaan was een uitdaging. Gelukkig bleek dat parse hele toegankelijke functies heeft om objecten weg te schrijven en op te halen, en kon medestudent Joram mij hiermee helpen.
 
-Het 
+Het toevoegen van een externe database in een android project bleek een groot obstakel. Parse toevoegen ging voor mij vrij gemakkelijk omdat Paul daarmee op mij voorliep en de grote moeilijkheden hiervan al was tegengekomen.
+Voor het eenvoudig vergelijken van 2 momenten (createdAt van een aight met huidige tijd om te kijken of deze is verlopen) wilde ik de joda-time library toevoegen. Na verschillende versies geprobeerd te hebben en verschillende build en maven errors te hebben gezien over een tijdsbestek van enkele uren heb ik het opgegeven. Het vergelijken van deze datum-objecten bleek uiteindelijk in java zelf ook wel te doen.
+
+Notificaties implementeren had ik in eerste instantie gedaan met een locale aanvraag. Nadeel hiervan was dat een gebruiker de app aan moest hebben staan om deze te ontvangen. Toen ik ben overgeschakeld op cloud-code was een groot deel van mijn code in de MapsActivity overbodig geworden, terwijl ik hier lang aan had gezeten.
+Het mooie van cloud-code is dat zodra bij parse een aight wordt weggeschreven, er vanuit parse wordt gekeken naar users in de buurt (binnen 3.5km) en deze een notificatie ontvangen.
 
 Clearly describe challenges that your have met during development. Document all important changes that your have made with regard to your design document.
 Try to defend these decisions by writing a small argument. Why was it good to do it different than you thought before? Are there trade-offs?
