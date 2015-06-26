@@ -9,7 +9,7 @@ The user interface is as intuitive as possible, which makes it fun and easy to u
 So when you're not looking for specific people, but you just want to hang out? just Aight!
 
 ### UI
-<img src="/doc/screenshots.png" width="5">
+<img src="/doc/screenshots.png" width="80%">
 
 ### External resources
 - [Parse](https://parse.com/)
