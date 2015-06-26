@@ -1,26 +1,22 @@
 package nl.mprog.rutger.aight;
-
 /**
- * Created by Rutger on 23-6-2015.
- * Initializing parse here should prevent crashes
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
  */
 
-import android.location.Location;
 import android.util.Log;
 
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
-import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 
-
 public class Application extends android.app.Application {
-
     public Application() {
-
     }
 
     @Override

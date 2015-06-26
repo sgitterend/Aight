@@ -4,7 +4,7 @@
     <string name="plus_button">+</string>
     <string name="title_activity_create_event">CreateEvent</string>
 
-    <string name="description">Describe your activity</string>
+    <string name="description">Describe your aight</string>
     <string name="description_hint">What will you be doing?</string>
     <string name="duration">Set the duration</string>
     <string name="action_settings">Settings</string>

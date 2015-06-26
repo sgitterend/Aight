@@ -1,8 +1,11 @@
 package nl.mprog.rutger.aight;
-
 /**
- * Created by Rutger on 18-6-2015.
- * taken from:
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
+ *
+ * based on:
  * http://stackoverflow.com/questions/3145089/what-is-the-simplest-and-most-robust-way-to-get-the-users-current-location-in-a/3145655#3145655
  */
 
@@ -15,7 +18,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
-import com.google.android.gms.maps.model.LatLng;
 
 public class MyLocation {
     Timer timer1;

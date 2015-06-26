@@ -1,9 +1,10 @@
 package nl.mprog.rutger.aight;
-
-
- /* taken from parse example app "anywall"
-  * https://github.com/ParsePlatform/AnyWall/tree/master/AnyWall-android
-  */
+/**
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
+ */
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,7 +28,7 @@ public class LoggedInCheck extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // add user to installation for notifications
+        // add pointer to user to installation to enable notifications
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
             ParseInstallation installation = ParseInstallation.getCurrentInstallation();

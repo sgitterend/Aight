@@ -1,12 +1,16 @@
 package nl.mprog.rutger.aight;
- /* taken from parse example app "anywall"
-  * https://github.com/ParsePlatform/AnyWall/tree/master/AnyWall-android
-  */
+/**
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
+ *
+ * based on parse example app "anywall"
+ * https://github.com/ParsePlatform/AnyWall/tree/master/AnyWall-android
+ */
 
 import android.app.ProgressDialog;
 import android.widget.EditText;
-
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

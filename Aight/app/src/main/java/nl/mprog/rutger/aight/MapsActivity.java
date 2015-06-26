@@ -1,10 +1,14 @@
 package nl.mprog.rutger.aight;
-
+/**
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
+ */
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -15,7 +19,6 @@ import android.view.View;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -32,12 +35,9 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
-import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.parse.SendCallback;
-
 
 import java.util.Date;
 import java.util.List;
@@ -88,7 +88,6 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void setUpMap() {
-
         // set standard map UI settings
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -111,7 +110,6 @@ public class MapsActivity extends FragmentActivity {
     // run this every 15 seconds
     Runnable placeMarkers = new Runnable() {
         public void run() {
-
             // look for current events
             parseQuery();
 
@@ -121,13 +119,14 @@ public class MapsActivity extends FragmentActivity {
     };
 
     public void parseQuery() {
-
         // get current time
         final Date currentTime = new Date();
         final long currentTimeSecs = currentTime.getTime();
 
+        // get latest user location
         ParseUser user = ParseUser.getCurrentUser();
         ParseGeoPoint currentLocation = user.getParseGeoPoint("userLocation");
+
         // get list of events from parse
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
         query.orderByDescending("createdAt");
@@ -138,8 +137,7 @@ public class MapsActivity extends FragmentActivity {
                 // get all markers off of map before creating current ones
                 mMap.clear();
 
-                int count = list.size();
-                for (int i = 0; i < count; i++) {
+                for (int i = 0; i < list.size(); i++) {
                     // get event activity
                     ParseObject activity = list.get(i);
 
@@ -174,39 +172,6 @@ public class MapsActivity extends FragmentActivity {
                 point.getLongitude())).title((String) user)
                 .snippet(description + getString(R.string.time_left, (duration - eventAgeInSecs / 60)))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_action_red)));
-
-        // compare location of user and of activity to get distance
-        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
-            @Override
-            public void gotLocation(Location location) {
-
-                // calculate distance between user and activity
-                double latDifference = Math.pow((location.getLatitude() - point.getLatitude()), 2);
-                double longDifference = Math.pow((location.getLongitude() - point.getLongitude()),2);
-                double distance = Math.pow((latDifference + longDifference), 0.5);
-
-                // notify user when an event is near
-                if (distance < PUSH_SEARCH_DISTANCE) {
-                    onDistanceKnown(distance, eventAgeInSecs, user);
-                }
-            }
-        };
-        MyLocation myLocation = new MyLocation();
-        myLocation.getLocation(this, locationResult);
-    }
-
-    // notify user when a new activity is created
-    public void onDistanceKnown(double distance, int eventAgeInSecs, String activityUser) {
-
-        // Don't be overly specific
-        int distanceUnprecise = 0;
-        if (distance < 30) {
-            distanceUnprecise = (int) (distance + 30);
-        }
-        else {
-            // round off to 10 meter
-            distanceUnprecise = (int) ((distance + 5) / 10) * 10;
-        }
     }
 
 
@@ -218,7 +183,6 @@ public class MapsActivity extends FragmentActivity {
 
     // get location and zoom in to it
     private void goToMyLocation() {
-
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
@@ -237,11 +201,11 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
+    // called periodically to update user location on parse
     private void storeCurrentLocation() {
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
-
                 // Update last known user location
                 ParseUser user = ParseUser.getCurrentUser();
                 if (user == null) {
@@ -253,7 +217,7 @@ public class MapsActivity extends FragmentActivity {
                 user.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
-                        Log.d(">>>>", "save location error" + e);
+                        Log.d(">>>>", "save location error " + e);
                     }
                 });
             }
@@ -285,35 +249,20 @@ public class MapsActivity extends FragmentActivity {
         builder.create().show();
     }
 
-    // create floating action buttons for current location and logout
+    // create floating action buttons (FABs) for current location and logout
     public void createFABS() {
-        invalidateFABS();
-
-        // make a fab button to locate current position
         ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
         fabLocate.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 goToMyLocation();
             }
         });
-
-        // make a fab button to log out
         Button fablogOut = (Button) findViewById(R.id.fablogout);
         fablogOut.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 logOut(v);
             }
         });
-    }
-
-    // invalidate fab buttons when user logs out
-    public void invalidateFABS() {
-
-        ImageButton fabLocate = (ImageButton) findViewById(R.id.fablocate);
-        fabLocate.invalidate();
-
-        Button fablogOut = (Button) findViewById(R.id.fablogout);
-        fablogOut.invalidate();
     }
 
     // allow a user to log out
@@ -323,7 +272,6 @@ public class MapsActivity extends FragmentActivity {
         // go to welcome activity
         Intent go = new Intent(this, WelcomeActivity.class);
         startActivity(go);
-        view.invalidate();
         finish();
     }
 

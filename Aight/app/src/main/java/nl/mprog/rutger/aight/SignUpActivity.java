@@ -1,12 +1,17 @@
 package nl.mprog.rutger.aight;
- /* taken from parse example app "anywall"
-  * https://github.com/ParsePlatform/AnyWall/tree/master/AnyWall-android
-  */
+/**
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
+ *
+ * based on parse example app "anywall"
+ * https://github.com/ParsePlatform/AnyWall/tree/master/AnyWall-android
+ */
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -16,10 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 
@@ -38,7 +40,6 @@ public class SignUpActivity extends Activity {
 
         // Set up the signup form.
         usernameEditText = (EditText) findViewById(R.id.username_edit_text);
-
         passwordEditText = (EditText) findViewById(R.id.password_edit_text);
         passwordAgainEditText = (EditText) findViewById(R.id.password_again_edit_text);
         passwordAgainEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {

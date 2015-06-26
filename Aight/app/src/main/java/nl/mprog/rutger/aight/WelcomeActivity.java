@@ -1,4 +1,10 @@
 package nl.mprog.rutger.aight;
+/**
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
+ */
 
 import android.app.Activity;
 import android.content.Intent;

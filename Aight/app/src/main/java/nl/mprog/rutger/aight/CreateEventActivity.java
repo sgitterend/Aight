@@ -1,4 +1,10 @@
 package nl.mprog.rutger.aight;
+/**
+ * Rutger van de Lagemaat
+ * Minor programmeren UvA
+ * 10265732
+ * zabilos@gmail.com
+ */
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -21,18 +27,19 @@ public class CreateEventActivity extends Activity {
 
     final int MAX_CHARS = 40;
 
+    final int TIME_STEPS_MINUTES = 5;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
 
-        // create slider and textview for intended activity length
+        // create slider and textview for intended aight length
         SeekBar timeSlider = (SeekBar) findViewById(R.id.timeslider);
         final TextView currentTime = (TextView) findViewById(R.id.chosentime);
-        final int fiveMin = 5;
 
         // show the standard time (min time = 1 min, steps of 5 min)
-        currentTime.setText(timeSlider.getProgress() * fiveMin + " minutes");
+        currentTime.setText(timeSlider.getProgress() * TIME_STEPS_MINUTES + " minutes");
 
         timeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -40,27 +47,23 @@ public class CreateEventActivity extends Activity {
                 if (progress == 0) {
                     currentTime.setText("1 minute");
                 } else {
-                    currentTime.setText(String.valueOf(progress * fiveMin) + " minutes");
+                    currentTime.setText(String.valueOf(progress * TIME_STEPS_MINUTES) + " minutes");
                 }
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-            }
+            public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
 
-        // Make sure user input is limited to 140 chars
+        // Make sure user input is limited to 40 chars
         final TextView charCount = (TextView) findViewById(R.id.charCount);
         final EditText eventDescription = (EditText) findViewById(R.id.event_description);
 
-
+        // display characters left to describe aight
         charCount.setText(Integer.toString(MAX_CHARS));
 
         eventDescription.addTextChangedListener(new TextWatcher() {
@@ -81,7 +84,7 @@ public class CreateEventActivity extends Activity {
 
     public void sendEventToParse(View view) {
 
-        // get user description
+        // get aight description
         EditText editText = (EditText) findViewById(R.id.event_description);
         String message = editText.getText().toString();
 
@@ -91,7 +94,7 @@ public class CreateEventActivity extends Activity {
 
         // translate slider value to actual time
         if (duration > 0) {
-            duration = duration * 5;
+            duration = duration * TIME_STEPS_MINUTES;
         }
         else {
             duration = 1;
