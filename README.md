@@ -14,5 +14,9 @@ So if you want people to join in? just Aight!
 - [Parse](https://parse.com/)
 - [Google Maps Android API v2](https://developers.google.com/maps/documentation/android/start)
 
+Click links above for further reference and license of respective external resources.
 
-Rutger van de Lagemaat, 2015
+
+
+--
+Mady by Rutger van de Lagemaat, June 2015
