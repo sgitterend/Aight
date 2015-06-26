@@ -72,7 +72,7 @@ Sommige van deze functies wil ik misschien nog toevoegen, maar binnen dit tijdsb
 Ik ga de APK in ieder geval aan mijn vrienden geven zodat we aight kunnen gebruiken.
 
 ### Sources
- - [https://parse.com/tutorials/anywall-android](AnyWall Parse tutorial)
- - [https://developers.google.com/maps/documentation/android/start](Google Maps Android API v2)
- - [https://github.com/JrSchild/](Joram's brein)
- - [http://stackoverflow.com/questions/3145089/what-is-the-simplest-and-most-robust-way-to-get-the-users-current-location-in-a/3145655#3145655](Stackoverflow et al)
+ - [AnyWall Parse tutorial](https://parse.com/tutorials/anywall-android)
+ - [(Google Maps Android API v2]https://developers.google.com/maps/documentation/android/start)
+ - [Joram's brein](https://github.com/JrSchild/)
+ - [Stackoverflow et al.](http://stackoverflow.com/questions/3145089/what-is-the-simplest-and-most-robust-way-to-get-the-users-current-location-in-a/3145655#3145655)
