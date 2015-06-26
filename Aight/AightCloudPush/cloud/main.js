@@ -1,4 +1,3 @@
-
 // send push notification to nearby users
 Parse.Cloud.afterSave('Event', function (request) {
 
@@ -22,36 +21,39 @@ Parse.Cloud.afterSave('Event', function (request) {
   var eventUser = request.object;
   var currentUser = request.user;
 
-
-  var eventLat = 52.3735462;
-  var eventLong = 4.8021944;
-
-  // calculate distance
-  var latDifference = Math.pow(userLat - eventLong, 2);
-  var longDifference = Math.pow(userLat - eventLong, 2);
-
-  // round distance off to 10 meters
-  var distance = parseInt((Math.pow((latDifference + longDifference), 0.5) + 10) / 10) * 10;
-
   var loc = new Parse.GeoPoint(request.object.get('location'));
-  loc = $.parseJSON(loc);
+  // 
+  // loc = $.parseJSON(loc);
+  // 
+  // var userLatitude = loc.get ("latitude");
+  // var userLongitude = loc.get ("longitude");
 
-  var userLat = loc.get ("latitude");
-  var userLong = loc.get ("longitude");
-
-  console.log(loc.radiansTo(userQuery.get('userLocation')));
-  console.log(userQuery.get('userLocation'));
   console.log(eventUser);
   console.log(currentUser);
   console.log(loc);
 
 
+  // var aightLatitude = 53.3835462;
+  // var aightLongitude = 4.8021944;
+
+  // var userLatitude = 52.3835462;
+  // var userLongitude = 4.8021944;
+
+  // console.log(aightLongitude);
+  // console.log(aightLatitude);
+  // console.log(userLatitude);
+  // console.log(userLongitude);
+
+  //distance = measure(userLatitude, userLongitude, aightLatitude, aightLongitude);
+
+  // console.log(distance);
+
   Parse.Push.send({
     where: query,
     expiration_time: ninetyMinFromNow,
     data: {
-        title: request.object.get('username') + " just created a new AIGHT",
-        alert: "within " + distance + " m"
+        title: request.object.get('username') + " just created a new Aight",
+        alert: "within 50 meters"
       }
     }, 
   {
@@ -63,4 +65,19 @@ Parse.Cloud.afterSave('Event', function (request) {
    }
   });
 
+// calculate meters from latitude and longitude
+// function measure(lat1, lon1, lat2, lon2){  // generally used geo measurement function
+//     var R = 6378.137; // Radius of earth in KM
+//     var dLat = (lat2 - lat1) * Math.PI / 180;
+//     var dLon = (lon2 - lon1) * Math.PI / 180;
+//     var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+//     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+//     Math.sin(dLon/2) * Math.sin(dLon/2);
+//     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+//     var d = R * c;
+//     console.log(d);
+//     return d * 1000; // meters
+// }
+
 });
+

@@ -48,8 +48,10 @@ import java.util.concurrent.TimeUnit;
 
 public class MapsActivity extends FragmentActivity {
 
-    static float PUSH_SEARCH_DISTANCE = 3500;
+    // radius in km for markers to be shown
+    static int MARKER_SEARCH_RADIUS = 60;
 
+    // max number of markers to be shown
     static  int MAX_AIGHTS = 100;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -130,7 +132,7 @@ public class MapsActivity extends FragmentActivity {
         // get list of events from parse
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Event");
         query.orderByDescending("createdAt");
-        query.whereWithinKilometers("location", currentLocation, PUSH_SEARCH_DISTANCE / 1000);
+        query.whereWithinKilometers("location", currentLocation, MARKER_SEARCH_RADIUS);
         query.setLimit(MAX_AIGHTS);
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> list, ParseException e) {
